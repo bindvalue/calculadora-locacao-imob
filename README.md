@@ -1,73 +1,67 @@
-# Welcome to your Lovable project
+# Calculadora de Locação Imobiliária
 
-## Project info
+Um sistema completo de simulação de aluguel imobiliário construído com Next.js, focado em captura de leads e gestão administrativa de valores baseados no mercado (Secovi), corretores e avaliações.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## 🚀 Tecnologias Utilizadas
 
-## How can I edit this code?
+- **Framework:** [Next.js](https://nextjs.org/) (App Router & Server Actions)
+- **Linguagem:** [TypeScript](https://www.typescriptlang.org/)
+- **Estilização:** [Tailwind CSS](https://tailwindcss.com/) e componentes baseados no [shadcn/ui](https://ui.shadcn.com/)
+- **Banco de Dados & Autenticação:** [Supabase](https://supabase.com/)
+- **Integração de APIs:** Google Places API (Autocompletar Inteligente de Endereços)
+- **Ícones:** [Lucide React](https://lucide.dev/)
 
-There are several ways of editing your application.
+## ⚙️ Funcionalidades
 
-**Use Lovable**
+### Portal Público
+- **Calculadora Inteligente:** Estimativa de valores de locação com base na metragem e localização.
+- **Captura de Leads:** Geração de oportunidades de negócio enviadas diretamente para o painel administrativo.
+- **Vitrine de Corretores:** Exibição de especialistas imobiliários e suas avaliações para passar credibilidade ao lead.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+### Painel Administrativo (Restrito)
+- **Autenticação Segura:** Login, redefinição e recuperação de senha ("Esqueci minha senha") gerenciados nativamente via Supabase Auth.
+- **Gestão de Leads:** Visualização e acompanhamento de contatos gerados pela calculadora pública.
+- **Gestão de Corretores & Avaliações:** Cadastro e edição de perfil de corretores.
+- **Gestão de Preços (Secovi):** 
+  - Importação em lote (Planilhas Excel .xlsx / .csv).
+  - Cadastro manual inteligente integrado ao **Google Places API** para padronização rigorosa de bairros, cidades e estados, impedindo erros de digitação e atrelando-os ao valor do metro quadrado correto.
 
-Changes made via Lovable will be committed automatically to this repo.
+## 🛠️ Como Executar o Projeto Localmente
 
-**Use your preferred IDE**
+### Pré-requisitos
+- Node.js (v18 ou superior)
+- NPM ou Yarn
+- Conta no [Supabase](https://supabase.com/) (com banco de dados PostgreSQL provisionado)
+- Chave da API do Google Cloud com a **Places API** habilitada.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Passos de Instalação
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+1. **Clone o repositório e acesse a pasta do projeto:**
+   ```bash
+   git clone https://github.com/bindvalue/calculadora-locacao-imob.git
+   cd calculadora-locacao-imob/especialistas-imobili-rios
+   ```
 
-Follow these steps:
+2. **Instale as dependências:**
+   ```bash
+   npm install
+   ```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+3. **Configuração de Variáveis de Ambiente:**
+   Crie um arquivo `.env.local` na raiz do projeto (`especialistas-imobili-rios/.env.local`) com as seguintes chaves:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=sua_url_do_supabase_aqui
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=sua_anon_key_do_supabase_aqui
+   SUPABASE_SERVICE_ROLE_KEY=sua_service_role_key_para_bypasses_no_backend
+   GOOGLE_PLACES_API_KEY=sua_chave_da_api_do_google_places
+   ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+4. **Inicie o servidor de desenvolvimento:**
+   ```bash
+   npm run dev
+   ```
+   Acesse `http://localhost:3000` no seu navegador para ver o sistema rodando.
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 📄 Licença
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Este projeto é de uso exclusivo para a gestão interna e operações relacionadas aos Especialistas Imobiliários da plataforma.
