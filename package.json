@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "next dev",
     "build": "next build && rm -rf .next/cache",
     "start": "next start",
     "lint": "next lint"
