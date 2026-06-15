@@ -1,0 +1,13 @@
+project_id = "jzmvpwpknfzjfvytaiot"
+
+[functions.asaas-create-customer]
+verify_jwt = false
+
+[functions.asaas-create-subscription]
+verify_jwt = false
+
+[functions.asaas-webhook]
+verify_jwt = false
+
+[functions.asaas-get-payment-link]
+verify_jwt = false
