@@ -147,7 +147,7 @@ const LeadsList = () => {
   const fetchLeads = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
+const { data, error } = await (supabase as any)
         .from("leads_calculadora")
         .select("*")
         .order("created_at", { ascending: false });
@@ -188,7 +188,7 @@ const LeadsList = () => {
     if (!lead.visualizado) {
       setLeads((prev) => prev.map((l) => l.id === lead.id ? { ...l, visualizado: true } : l));
       try {
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from("leads_calculadora")
           .update({ visualizado: true })
           .eq("id", lead.id);
@@ -217,7 +217,7 @@ const LeadsList = () => {
     if (!deleteId) return;
 
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("leads_calculadora")
         .delete()
         .eq("id", deleteId);
