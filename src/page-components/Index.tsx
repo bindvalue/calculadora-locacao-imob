@@ -168,7 +168,7 @@ const Index = () => {
   useEffect(() => {
     const fetchAdminPhone = async () => {
       try {
-        const { data } = await supabase
+const { data } = await (supabase as any)
           .from("settings")
           .select("value")
           .eq("key", "whatsapp_general")
@@ -193,7 +193,7 @@ const Index = () => {
   useEffect(() => {
     const fetchSecoviRates = async () => {
       try {
-        const { data, error } = await supabase.from("secovi_valores").select("*");
+const { data, error } = await (supabase as any).from("secovi_valores").select("*");
         if (data && !error && data.length > 0) {
           const dynamicRates: Record<string, { min: number, max: number, default: number }> = { ...DEFAULT_NEIGHBORHOOD_RATES };
           data.forEach((item) => {
@@ -374,7 +374,7 @@ const Index = () => {
       const finalPropertyType = data.propertyType === "Outro" && data.customPropertyType ? data.customPropertyType : data.propertyType;
 
       // Salvando no Supabase para o CRM dos administradores
-      const { error } = await supabase.from("leads_calculadora").insert([
+const { error } = await (supabase as any).from("leads_calculadora").insert([
         {
           nome: data.name,
           email: data.email,
