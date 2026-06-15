@@ -298,7 +298,7 @@ const { data, error } = await (supabase as any)
                       {!lead.visualizado ? (
                         <span className="bg-[#6E2FAE] text-white text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">Novo</span>
                       ) : (
-                        <Eye className="w-4 h-4 text-[#86868B] opacity-60" title="Visualizado" />
+                        <Eye className="w-4 h-4 text-[#86868B] opacity-60" />
                       )}
                     </div>
                     <p className="text-sm text-[#86868B] font-medium mt-1">{lead.email}</p>
