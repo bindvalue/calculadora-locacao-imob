@@ -52,7 +52,6 @@ Um sistema completo de simulação de aluguel imobiliário construído com Next.
    ```env
    NEXT_PUBLIC_SUPABASE_URL=sua_url_do_supabase_aqui
    NEXT_PUBLIC_SUPABASE_ANON_KEY=sua_anon_key_do_supabase_aqui
-   SUPABASE_SERVICE_ROLE_KEY=sua_service_role_key_para_bypasses_no_backend
    GOOGLE_PLACES_API_KEY=sua_chave_da_api_do_google_places
    ```
 
