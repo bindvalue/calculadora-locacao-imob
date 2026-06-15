@@ -207,7 +207,7 @@ const RentalCalculatorPage = () => {
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.from("leads_calculadora").insert([
+const { error } = await (supabase as any).from("leads_calculadora").insert([
         {
           name: data.name,
           contact: `Email: ${data.email}, WhatsApp: ${data.whatsapp}`,
