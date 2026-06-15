@@ -1,3 +1,6 @@
 .next/cache
+.next/cache/**
+.next/webpack
+cache
 node_modules
 .git
