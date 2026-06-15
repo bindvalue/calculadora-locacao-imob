@@ -52,7 +52,7 @@ export const SecoviManager = () => {
   const fetchBairros = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
+const { data, error } = await (supabase as any)
         .from("secovi_valores")
         .select("*")
         .order("bairro", { ascending: true });
@@ -156,7 +156,7 @@ export const SecoviManager = () => {
 
     try {
       // Verifica se o bairro já existe (Upsert lógico)
-      const { data: existing } = await supabase
+      const { data: existing } = await (supabase as any)
         .from("secovi_valores")
         .select("id")
         .ilike("bairro", selectedPlace.bairro.trim())
@@ -164,7 +164,7 @@ export const SecoviManager = () => {
 
       let error;
       if (existing) {
-        const { error: updateError } = await supabase.from("secovi_valores").update({
+        const { error: updateError } = await (supabase as any).from("secovi_valores").update({
           estado: selectedPlace.estado,
           cidade: selectedPlace.cidade,
           valor_min: Number((valor * 0.85).toFixed(2)),
@@ -174,7 +174,7 @@ export const SecoviManager = () => {
         error = updateError;
         if (!error) toast.success("Bairro atualizado com sucesso!");
       } else {
-        const { error: insertError } = await supabase.from("secovi_valores").insert([{
+        const { error: insertError } = await (supabase as any).from("secovi_valores").insert([{
           estado: selectedPlace.estado,
           cidade: selectedPlace.cidade,
           bairro: selectedPlace.bairro.toUpperCase(),
@@ -200,7 +200,7 @@ export const SecoviManager = () => {
     if (!deleteId) return;
 
     try {
-      const { error } = await supabase.from("secovi_valores").delete().eq("id", deleteId);
+      const { error } = await (supabase as any).from("secovi_valores").delete().eq("id", deleteId);
       if (error) throw error;
       setBairros((prev) => prev.filter((b) => b.id !== deleteId));
       toast.success("Bairro removido.");
