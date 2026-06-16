@@ -9,32 +9,26 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import logoPurple from "../../assets/logo-sonho-real-purple.png";
 
-const UpdatePasswordPage = () => {
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+const ForgotPasswordPage = () => {
+  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleUpdate = async () => {
-    if (!password || password.length < 6) {
-      return toast.error("A senha deve ter pelo menos 6 caracteres.");
-    }
-
-    if (password !== confirmPassword) {
-      return toast.error("As senhas não coincidem.");
+  const handleReset = async () => {
+    if (!email) {
+      return toast.error("Por favor, informe seu e-mail.");
     }
 
     setLoading(true);
-    const { error } = await supabase.auth.updateUser({
-      password: password,
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/update-password`,
     });
 
     if (error) {
-      toast.error("Erro ao atualizar a senha.");
+      toast.error("Erro ao enviar o e-mail de recuperação.");
     } else {
-      toast.success("Senha atualizada com sucesso!");
-      // Redireciona para o painel de admin ou login após o sucesso
-      router.push("/admin");
+      toast.success("E-mail de recuperação enviado!");
+      setEmail("");
     }
     setLoading(false);
   };
@@ -49,35 +43,33 @@ const UpdatePasswordPage = () => {
         />
         <div>
           <h1 className="text-3xl font-semibold text-[#1D1D1F] tracking-tight">
-            Nova senha
+            Recuperar senha
           </h1>
           <p className="text-[#86868B] font-medium text-lg mt-3">
-            Digite sua nova senha abaixo
+            Informe seu e-mail para receber o link
           </p>
         </div>
 
-        <Input
-          type="password"
-          placeholder="Sua nova senha"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="h-14 bg-[#F5F5F7] border-gray-200/80 rounded-2xl text-[#1D1D1F] placeholder:text-gray-400 focus:bg-white focus:border-[#6E2FAE] focus:ring-4 focus:ring-[#6E2FAE]/10 transition-all shadow-sm text-lg font-medium"
-        />
+        <div className="space-y-4 text-left">
+          <Input
+            type="email"
+            placeholder="seu@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="h-14 bg-[#F5F5F7] border-gray-200/80 rounded-2xl text-[#1D1D1F] placeholder:text-gray-400 focus:bg-white focus:border-[#6E2FAE] focus:ring-4 focus:ring-[#6E2FAE]/10 transition-all shadow-sm text-lg font-medium"
+          />
+        </div>
 
-        <Input
-          type="password"
-          placeholder="Confirme sua nova senha"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          className="h-14 bg-[#F5F5F7] border-gray-200/80 rounded-2xl text-[#1D1D1F] placeholder:text-gray-400 focus:bg-white focus:border-[#6E2FAE] focus:ring-4 focus:ring-[#6E2FAE]/10 transition-all shadow-sm text-lg font-medium"
-        />
+        <Button onClick={handleReset} disabled={loading} className="w-full bg-[#6E2FAE] hover:bg-[#5a268f] text-white h-14 rounded-full font-semibold text-lg shadow-sm hover:shadow-md transition-all flex items-center justify-center">
+          {loading ? <><Loader2 className="animate-spin w-5 h-5 mr-2" /> Enviando...</> : "Enviar link"}
+        </Button>
 
-        <Button onClick={handleUpdate} disabled={loading} className="w-full bg-[#6E2FAE] hover:bg-[#5a268f] text-white h-14 rounded-full font-semibold text-lg shadow-sm hover:shadow-md transition-all flex items-center justify-center">
-          {loading ? <><Loader2 className="animate-spin w-5 h-5 mr-2" /> Atualizando...</> : "Atualizar senha"}
+        <Button variant="ghost" onClick={() => router.push("/admin")} className="w-full text-[#6E2FAE] hover:text-[#5a268f] hover:bg-transparent text-base font-semibold mt-4">
+          Voltar para o login
         </Button>
       </div>
     </div>
   );
 };
 
-export default UpdatePasswordPage;
+export default ForgotPasswordPage;

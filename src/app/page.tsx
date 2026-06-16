@@ -1,5 +1,7 @@
-import Index from "@/page-components/Index";
+import IndexPage from "@/page-components/Index";
 
-export default function Page() {
-  return <Index />;
+export default function HomePage() {
+  return (
+    <IndexPage />
+  );
 }
