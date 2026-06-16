@@ -81,7 +81,7 @@ const formSchema = z.object({
   complement: z.string().optional(),
   neighborhood: z.string(),
   area: z.coerce.number().positive({ message: "Área deve ser positiva." }),
-  saleValue: z.coerce.number().positive({ message: "Valor deve ser positivo." }),
+  saleValue: z.coerce.number().optional(),
   bathrooms: z.number().min(0),
   bedrooms: z.number().min(0),
   suites: z.number().min(0),
@@ -183,7 +183,7 @@ const { data } = await (supabase as any)
   }, []);
 
   const { area, saleValue, condominium, hasIptu, iptuValue, street, houseNumber, complement, neighborhood, city, state, cep, propertyType, customPropertyType } = form.watch();
-  const canCalculate = area > 0 && saleValue > 0;
+  const canCalculate = area > 0;
 
   useEffect(() => {
     setHasCalculated(false);
@@ -350,9 +350,9 @@ const { data, error } = await (supabase as any).from("secovi_valores").select("*
     const totalExp = condoCost + iptuCost;
     
     const income = net * 12; // Renda anual baseada no líquido
-    const yieldValue = (rent / saleValue) * 100; // Yield Bruto
-    const nYield = (net / saleValue) * 100; // Yield Líquido
-    const returnYears = saleValue / (rent * 12);
+    const yieldValue = 0;
+    const nYield = 0;
+    const returnYears = 0;
 
     return {
       monthlyRent: rent,
@@ -390,7 +390,7 @@ const { error } = await (supabase as any).from("leads_calculadora").insert([
           complemento: data.complement || null,
           tipo_imovel: finalPropertyType,
           area_m2: data.area,
-          valor_venda: data.saleValue,
+          valor_venda: data.saleValue || 0,
           quartos: data.bedrooms,
           suites: data.suites,
           banheiros: data.bathrooms,
@@ -454,7 +454,7 @@ const { error } = await (supabase as any).from("leads_calculadora").insert([
 
         {/* Header Mobile Only */}
         <header className="lg:hidden w-full bg-white/95 backdrop-blur-xl py-2 px-6 flex items-center justify-between border-b border-gray-100 shrink-0 z-20 sticky top-1.5">
-          <img src={logoPurple.src} alt="Sonho Real" className="h-14" />
+<img src={logoPurple} alt="Sonho Real" className="h-14" />
           <a href={whatsappLink} target="_blank" rel="noreferrer" className="text-xs font-bold text-[#6E2FAE] bg-[#6E2FAE]/10 hover:bg-[#6E2FAE]/20 px-4 py-2 rounded-full transition-colors">
             Falar com consultor
           </a>
@@ -462,7 +462,7 @@ const { error } = await (supabase as any).from("leads_calculadora").insert([
 
         {/* Header Desktop */}
         <header className="hidden lg:flex w-full pt-4 xl:pt-6 pb-2 px-6 xl:px-10 items-center justify-between shrink-0">
-          <img src={logoPurple.src} alt="Sonho Real" className="h-12 xl:h-16" />
+<img src={logoPurple} alt="Sonho Real" className="h-12 xl:h-16" />
         </header>
 
         {/* Container do Wizard (Formulário) */}
@@ -633,18 +633,6 @@ const { error } = await (supabase as any).from("leads_calculadora").insert([
                         </div>
                         <FormControl>
                           <Input type="text" placeholder="Ex: 120 m²" {...field} value={field.value ? `${field.value} m²` : ""} onChange={(e) => { const rawValue = e.target.value.replace(/\D/g, ""); if (!rawValue) return field.onChange("" as unknown as number); field.onChange(Number(rawValue)); }} className={inputClasses} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
-                    <FormField name="saleValue" control={form.control} render={({ field }) => (
-                      <FormItem>
-                        <div className="mb-2">
-                          <FormLabel className="text-sm font-bold text-gray-700 ml-1 mb-0.5 block">Valor Estimado de Venda do Imóvel</FormLabel>
-                          <p className="text-xs text-gray-500 ml-1 font-medium">Insira uma estimativa se não souber o valor real.</p>
-                        </div>
-                        <FormControl>
-                          <Input type="text" placeholder="R$ 0,00" {...field} value={field.value ? formatCurrency(field.value) : ""} onChange={(e) => { const rawValue = e.target.value.replace(/\D/g, ""); if (!rawValue) return field.onChange("" as unknown as number); const numericValue = Number(rawValue) / 100; field.onChange(numericValue); }} className={inputClasses} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -969,7 +957,7 @@ const { error } = await (supabase as any).from("leads_calculadora").insert([
         <div 
           className="absolute inset-0 z-0 opacity-40 pointer-events-none mix-blend-overlay"
           style={{
-            backgroundImage: `url(${resultadoImg.src})`,
+backgroundImage: `url(${resultadoImg})`,
             backgroundSize: 'contain',
             backgroundPosition: 'right center',
             backgroundRepeat: 'no-repeat',
@@ -1017,7 +1005,7 @@ const { error } = await (supabase as any).from("leads_calculadora").insert([
             <div className="container mx-auto px-6 max-w-[800px] space-y-10 print:space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
               {/* Cabeçalho para Impressão */}
               <div className="hidden print:flex flex-col items-center mb-8 pb-8 print:mb-4 print:pb-4 border-b border-gray-200">
-                <img src={logoPurple.src} alt="Sonho Real Netimóveis" className="h-24 object-contain" />
+<img src={logoPurple} alt="Sonho Real Netimóveis" className="h-24 object-contain" />
                 <h1 className="text-2xl font-bold text-gray-800 mt-4">Relatório de Simulação de Aluguel</h1>
                 <p suppressHydrationWarning className="text-sm text-gray-500 mb-6 print:mb-4">Gerado em: {new Date().toLocaleDateString('pt-BR')}</p>
                 
@@ -1069,13 +1057,13 @@ const { error } = await (supabase as any).from("leads_calculadora").insert([
                 </div>
                 <div className="p-4 sm:p-6 bg-white rounded-3xl border border-gray-100 shadow-sm flex flex-col items-center text-center"> 
                   <div className="p-3 bg-blue-50 rounded-2xl mb-3"><BarChart className="w-5 h-5 text-blue-500"/></div> 
-                  <p className="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Yield Líquido a.m.</p> 
-                  <p className="text-base sm:text-xl font-extrabold text-gray-900 tracking-tighter whitespace-nowrap">{netYield.toFixed(2)}%</p> 
+                  <p className="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Renda Anual</p> 
+                  <p className="text-base sm:text-xl font-extrabold text-gray-900 tracking-tighter whitespace-nowrap">{formatCurrency(annualIncome)}</p> 
                 </div>
                 <div className="p-4 sm:p-6 bg-white rounded-3xl border border-gray-100 shadow-sm flex flex-col items-center text-center"> 
                   <div className="p-3 bg-purple-50 rounded-2xl mb-3"><Calendar className="w-5 h-5 text-purple-500"/></div> 
-                  <p className="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Retorno s/ Venda</p> 
-                  <p className="text-base sm:text-xl font-extrabold text-gray-900 tracking-tighter whitespace-nowrap">{isFinite(returnOnSaleYears) ? `${returnOnSaleYears.toFixed(1)} anos` : 'N/A'}</p> 
+                  <p className="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Projeção Anual</p> 
+                  <p className="text-base sm:text-xl font-extrabold text-gray-900 tracking-tighter whitespace-nowrap">{formatCurrency(annualIncome)}</p> 
                 </div>
               </div>
 
@@ -1095,10 +1083,10 @@ const { error } = await (supabase as any).from("leads_calculadora").insert([
                 <div className="flex-1 text-center sm:text-left">
                   <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#6E2FAE]/10 rounded-full mb-3">
                     <BarChart className="w-4 h-4 text-[#6E2FAE]" />
-                    <span className="text-sm font-bold text-[#6E2FAE]">Rentabilidade Líquida</span>
+                    <span className="text-sm font-bold text-[#6E2FAE]">Resultado Financeiro</span>
                   </div>
                   <p className="text-gray-500 text-sm font-medium leading-relaxed">
-                    Sua rentabilidade líquida estimada é de <strong className="text-gray-700">{netYield.toFixed(2)}% ao mês</strong>, já descontando <strong className="text-gray-700">Condomínio ({formatCurrency(Number(condominium) || 0)})</strong> e o <strong className="text-gray-700">IPTU ({formatCurrency(estimatedIptu)}/mês)</strong>. Taxas acima de <strong className="text-gray-700">0,4%</strong> ao mês são excelentes no cenário atual.
+                    Seu imóvel pode gerar aproximadamente <strong className="text-gray-700">{formatCurrency(annualIncome)} por ano</strong>, já descontando <strong className="text-gray-700">Condomínio ({formatCurrency(Number(condominium) || 0)})</strong> e <strong className="text-gray-700">IPTU ({formatCurrency(estimatedIptu)}/mês)</strong>. Esse valor representa o potencial real de renda com base nas condições atuais do mercado.
                   </p>
                 </div>
                 <div className="w-[120px] flex flex-col items-center relative shrink-0">
