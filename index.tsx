@@ -74,6 +74,9 @@ const maskCep = (value: string) => {
     .replace(/(-\d{3})\d+?$/, '$1');
 };
 
+import ForgotPassword from "@/page-components/ForgotPassword";
+import UpdatePassword from "@/page-components/UpdatePassword";
+
 const RentalCalculatorPage = () => {
   const [m2Value, setM2Value] = useState([17]);
   const [isFetchingCep, setIsFetchingCep] = useState(false);
@@ -343,4 +346,13 @@ const { error } = await (supabase as any).from("leads_calculadora").insert([
   );
 };
 
-export default RentalCalculatorPage;
+const AppRouter = () => {
+  const path = window.location.pathname;
+
+  if (path === "/forgot-password") return <ForgotPassword />;
+  if (path === "/update-password") return <UpdatePassword />;
+
+  return <RentalCalculatorPage />;
+};
+
+export default AppRouter;
