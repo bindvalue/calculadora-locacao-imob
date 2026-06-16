@@ -1150,16 +1150,36 @@ backgroundImage: `url(${resultadoImg})`,
                 </p>
               </div>
 
-              <div className="bg-[#1C1C1E] rounded-[2rem] p-8 text-center text-white shadow-xl relative overflow-hidden mt-8 print:hidden">
-                <div className="absolute top-0 right-1/4 w-[20rem] h-[20rem] bg-[#6E2FAE] rounded-full blur-[80px] opacity-30 -translate-y-1/2 pointer-events-none"></div>
-                <div className="relative z-10">
-                  <h3 className="text-2xl font-extrabold mb-4 tracking-tight">Ficou com dúvida?</h3>
-                  <p className="text-gray-400 mb-8 max-w-md mx-auto">Nossos especialistas estão prontos para te ajudar a entender melhor esses números e traçar a melhor estratégia.</p>
+              <div className="bg-gradient-to-r from-[#6E2FAE] to-[#B475F3] rounded-[2.5rem] p-10 sm:p-12 text-center text-white shadow-2xl relative overflow-hidden mt-10 print:hidden w-full">
+                <div className="absolute top-0 right-0 w-[25rem] h-[25rem] bg-white/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
+                
+                <div className="relative z-10 max-w-3xl mx-auto">
+                  <p className="text-sm font-bold uppercase tracking-widest text-white/80 mb-3">
+                    Próximo passo
+                  </p>
+
+                  <h3 className="text-3xl sm:text-4xl font-extrabold mb-4 tracking-tight leading-tight">
+                    Anuncie seu imóvel agora!
+                  </h3>
+
+                  <p className="text-white/90 mb-8 text-lg font-medium leading-relaxed">
+                    Ficou com dúvida? Nossos especialistas estão prontos para te ajudar a entender melhor esses números e traçar a melhor estratégia para alugar mais rápido e pelo melhor valor.
+                  </p>
+
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                    <a href={whatsappLink} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-3 bg-white text-[#1C1C1E] hover:bg-gray-100 hover:scale-105 text-lg h-14 px-8 rounded-2xl shadow-lg transition-all duration-300 font-extrabold w-full sm:w-auto">
+                    <a 
+                      href={whatsappLink} 
+                      target="_blank" 
+                      rel="noreferrer" 
+                      className="inline-flex items-center justify-center gap-3 bg-white text-[#6E2FAE] hover:bg-gray-100 hover:scale-105 text-lg h-16 px-10 rounded-2xl shadow-xl transition-all duration-300 font-extrabold w-full sm:w-auto"
+                    >
                       <Phone className="w-5 h-5" /> Falar com Especialista
                     </a>
-                    <button onClick={() => window.print()} className="inline-flex items-center justify-center gap-3 bg-[#2C2C2E] text-white hover:bg-[#3A3A3C] hover:scale-105 text-lg h-14 px-8 rounded-2xl shadow-lg transition-all duration-300 font-extrabold w-full sm:w-auto">
+
+                    <button 
+                      onClick={() => window.print()} 
+                      className="inline-flex items-center justify-center gap-3 bg-white/20 backdrop-blur text-white hover:bg-white/30 hover:scale-105 text-lg h-16 px-10 rounded-2xl shadow-xl transition-all duration-300 font-extrabold w-full sm:w-auto border border-white/20"
+                    >
                       <Download className="w-5 h-5" /> Salvar PDF
                     </button>
                   </div>
