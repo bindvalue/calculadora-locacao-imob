@@ -27,9 +27,9 @@ import {
   FileDown,
 } from "lucide-react";
 
-import logoPurple from "@/assets/logo-sonho-real-purple.png";
-import logoWhite from "@/assets/logo-sonho-real-white.png";
-import resultadoImg from "@/assets/resultado_calcu_img.png";
+import logoPurple from "../assets/logo-sonho-real-purple.png";
+import logoWhite from "../assets/logo-sonho-real-white.png";
+import resultadoImg from "../assets/resultado_calcu_img.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -455,7 +455,7 @@ const { error } = await (supabase as any).from("leads_calculadora").insert([
 
         {/* Header Mobile Only */}
         <header className="lg:hidden w-full bg-white/95 backdrop-blur-xl py-2 px-6 flex items-center justify-between border-b border-gray-100 shrink-0 z-20 sticky top-1.5">
-<img src={logoPurple} alt="Sonho Real" className="h-14" />
+<img src={(logoPurple as any).src || logoPurple} alt="Sonho Real" className="h-14" />
           <a href={whatsappLink} target="_blank" rel="noreferrer" className="text-xs font-bold text-[#6E2FAE] bg-[#6E2FAE]/10 hover:bg-[#6E2FAE]/20 px-4 py-2 rounded-full transition-colors">
             Falar com consultor
           </a>
@@ -463,7 +463,7 @@ const { error } = await (supabase as any).from("leads_calculadora").insert([
 
         {/* Header Desktop */}
         <header className="hidden lg:flex w-full pt-4 xl:pt-6 pb-2 px-6 xl:px-10 items-center justify-between shrink-0">
-<img src={logoPurple} alt="Sonho Real" className="h-12 xl:h-16" />
+<img src={(logoPurple as any).src || logoPurple} alt="Sonho Real" className="h-12 xl:h-16" />
         </header>
 
         {/* Container do Wizard (Formulário) */}
@@ -958,7 +958,7 @@ const { error } = await (supabase as any).from("leads_calculadora").insert([
         <div 
           className="absolute inset-0 z-0 opacity-40 pointer-events-none mix-blend-overlay"
           style={{
-backgroundImage: `url(${resultadoImg})`,
+backgroundImage: `url(${(resultadoImg as any).src || resultadoImg})`,
             backgroundSize: 'contain',
             backgroundPosition: 'right center',
             backgroundRepeat: 'no-repeat',
@@ -1006,7 +1006,7 @@ backgroundImage: `url(${resultadoImg})`,
             <div className="container mx-auto px-6 max-w-[800px] space-y-10 print:space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
               {/* Cabeçalho para Impressão */}
               <div className="hidden print:flex flex-col items-center mb-8 pb-8 print:mb-4 print:pb-4 border-b border-gray-200">
-<img src={logoPurple} alt="Sonho Real Netimóveis" className="h-24 object-contain" />
+<img src={(logoPurple as any).src || logoPurple} alt="Sonho Real Netimóveis" className="h-24 object-contain" />
                 <h1 className="text-2xl font-bold text-gray-800 mt-4">Relatório de Simulação de Aluguel</h1>
                 <p suppressHydrationWarning className="text-sm text-gray-500 mb-6 print:mb-4">Gerado em: {new Date().toLocaleDateString('pt-BR')}</p>
                 
@@ -1112,8 +1112,8 @@ backgroundImage: `url(${resultadoImg})`,
                     <path d="M 10 100 A 90 90 0 0 1 190 100" fill="none" stroke="#F3F4F6" strokeWidth="16" strokeLinecap="round" />
                     <path d="M 10 100 A 90 90 0 0 1 190 100" fill="none" stroke="url(#yieldGradient)" strokeWidth="16" strokeLinecap="round" strokeDasharray="282.74" className="animate-yield" />
                   </svg>
-                  <div className="absolute bottom-0 text-center flex flex-col items-center">
-                    <span className="text-2xl font-extrabold text-gray-900">{netYield.toFixed(2)}%</span>
+                  <div className="absolute bottom-0 w-full text-center flex flex-col items-center">
+                    <span className="text-lg font-extrabold text-gray-900">{netYield.toFixed(2)}%</span>
                   </div>
                 </div>
               </div>
@@ -1150,13 +1150,15 @@ backgroundImage: `url(${resultadoImg})`,
                 </p>
               </div>
 
-              <div className="bg-gradient-to-r from-[#6E2FAE] to-[#B475F3] rounded-[2.5rem] p-10 sm:p-12 text-center text-white shadow-2xl relative overflow-hidden mt-10 print:hidden w-full">
+              <div className="bg-gradient-to-r from-[#6E2FAE] to-[#B475F3] p-10 sm:p-14 text-center text-white shadow-2xl relative overflow-hidden mt-10 print:hidden w-screen relative left-1/2 -translate-x-1/2 rounded-none">
                 <div className="absolute top-0 right-0 w-[25rem] h-[25rem] bg-white/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
                 
                 <div className="relative z-10 max-w-3xl mx-auto">
                   <p className="text-sm font-bold uppercase tracking-widest text-white/80 mb-3">
                     Próximo passo
                   </p>
+
+                  <img src={(logoWhite as any).src || logoWhite} alt="Sonho Real Netimóveis" className="h-10 sm:h-14 mx-auto mb-6 object-contain" />
 
                   <h3 className="text-3xl sm:text-4xl font-extrabold mb-4 tracking-tight leading-tight">
                     Anuncie seu imóvel agora!
