@@ -350,8 +350,9 @@ const { data, error } = await (supabase as any).from("secovi_valores").select("*
     const totalExp = condoCost + iptuCost;
     
     const income = net * 12; // Renda anual baseada no líquido
-    const yieldValue = 0;
-    const nYield = 0;
+    // Novo indicador baseado em eficiência (não depende do valor do imóvel)
+    const yieldValue = rent > 0 ? (net / rent) * 100 : 0; // % do que sobra do bruto
+    const nYield = yieldValue;
     const returnYears = 0;
 
     return {
