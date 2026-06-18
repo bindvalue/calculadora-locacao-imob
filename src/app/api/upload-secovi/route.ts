@@ -1,29 +1,15 @@
 import { NextResponse } from "next/server";
-import * as xlsx from "xlsx";
 import { createClient } from "@supabase/supabase-js";
+
+export const runtime = 'edge';
 
 export async function POST(request: Request) {
   try {
-    const formData = await request.formData();
-    const file = formData.get("file") as File | null;
-
-    if (!file) {
-      return NextResponse.json({ error: "Nenhum arquivo enviado." }, { status: 400 });
-    }
-
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
-    // Lê a planilha usando a biblioteca xlsx
-    const workbook = xlsx.read(buffer, { type: "buffer" });
-    const sheetName = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[sheetName];
-
-    // Converte os dados da planilha para JSON
-    const rawData = xlsx.utils.sheet_to_json(worksheet);
+    // O frontend agora envia JSON, não mais um arquivo FormData
+    const { spreadsheetData: rawData } = await request.json();
 
     if (!rawData || rawData.length === 0) {
-      return NextResponse.json({ error: "A planilha está vazia." }, { status: 400 });
+      return NextResponse.json({ error: "Nenhum dado recebido da planilha." }, { status: 400 });
     }
 
     // Instancia o Supabase repassando o token de autenticação do Frontend

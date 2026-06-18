@@ -17,6 +17,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import * as xlsx from "xlsx";
 
 import { fetchGooglePlaces } from "./google-places";
 
@@ -118,26 +119,36 @@ const { data, error } = await (supabase as any)
     if (!file) return;
 
     setIsUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
-
-    // Pega a sessão atual para enviar o token de autenticação
-    const { data: { session } } = await supabase.auth.getSession();
 
     try {
+      // 1. Lê e processa o arquivo no navegador (client-side)
+      const arrayBuffer = await file.arrayBuffer();
+      const workbook = xlsx.read(arrayBuffer, { type: "buffer" });
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const rawData = xlsx.utils.sheet_to_json(worksheet);
+
+      if (!rawData || rawData.length === 0) {
+        throw new Error("A planilha está vazia ou em formato inválido.");
+      }
+
+      // 2. Envia os dados já processados (JSON) para a API
+      const { data: { session } } = await supabase.auth.getSession();
       const response = await fetch("/api/upload-secovi", {
         method: "POST",
-        headers: session?.access_token ? {
-          Authorization: `Bearer ${session.access_token}`
-        } : undefined,
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
+        body: JSON.stringify({ spreadsheetData: rawData }),
       });
-      const result = await response.json();
 
+      const result = await response.json();
       if (!response.ok) throw new Error(result.error);
       
       toast.success(`Planilha processada! ${result.count} bairros atualizados.`);
       fetchBairros(); // Recarrega a tabela na tela
+
     } catch (error: any) {
       toast.error(error.message || "Falha ao processar o arquivo da planilha.");
     } finally {
