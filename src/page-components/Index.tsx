@@ -25,6 +25,7 @@ import {
   FileText,
   Cpu,
   FileDown,
+  Building,
 } from "lucide-react";
 
 import logoPurple from "../assets/logo-sonho-real-purple.png";
@@ -338,9 +339,9 @@ const { data, error } = await (supabase as any).from("secovi_valores").select("*
     }
   };
 
-  const { monthlyRent, annualIncome, monthlyYield, returnOnSaleYears, estimatedIptu, netRent, netYield, totalExpenses } = useMemo(() => {
+  const { monthlyRent, annualIncome, monthlyYield, returnOnSaleYears, estimatedIptu, netRent, netYield, totalExpenses, estimatedSaleValue, estimatedSaleM2 } = useMemo(() => {
     if (!canCalculate) {
-      return { monthlyRent: 0, annualIncome: 0, monthlyYield: 0, returnOnSaleYears: 0, estimatedIptu: 0, netRent: 0, netYield: 0, totalExpenses: 0 };
+      return { monthlyRent: 0, annualIncome: 0, monthlyYield: 0, returnOnSaleYears: 0, estimatedIptu: 0, netRent: 0, netYield: 0, totalExpenses: 0, estimatedSaleValue: 0, estimatedSaleM2: 0 };
     }
     const rent = area * m2Value[0]; // Gross Rent (Pacote)
     const condoCost = Number(condominium) || 0;
@@ -355,6 +356,11 @@ const { data, error } = await (supabase as any).from("secovi_valores").select("*
     const nYield = yieldValue;
     const returnYears = 0;
 
+    // Estimativa de venda baseada em um Yield médio de mercado de 0.45% a.m.
+    const ESTIMATED_YIELD_AM = 0.0045;
+    const estSaleM2 = m2Value[0] / ESTIMATED_YIELD_AM;
+    const estSaleValue = rent / ESTIMATED_YIELD_AM;
+
     return {
       monthlyRent: rent,
       annualIncome: income,
@@ -364,6 +370,8 @@ const { data, error } = await (supabase as any).from("secovi_valores").select("*
       netRent: net,
       netYield: nYield,
       totalExpenses: totalExp,
+      estimatedSaleValue: estSaleValue,
+      estimatedSaleM2: estSaleM2,
     };
   }, [area, saleValue, m2Value, canCalculate, condominium, hasIptu, iptuValue]);
 
@@ -391,7 +399,7 @@ const { error } = await (supabase as any).from("leads_calculadora").insert([
           complemento: data.complement || null,
           tipo_imovel: finalPropertyType,
           area_m2: data.area,
-          valor_venda: data.saleValue || 0,
+          valor_venda: data.saleValue || estimatedSaleValue,
           quartos: data.bedrooms,
           suites: data.suites,
           banheiros: data.bathrooms,
@@ -1042,7 +1050,23 @@ backgroundImage: `url(${(resultadoImg as any).src || resultadoImg})`,
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 print:break-inside-avoid">
+              <div className="bg-gradient-to-br from-[#EEF2FF] to-[#E0E7FF] rounded-3xl p-6 sm:p-8 border border-[#C7D2FE] shadow-sm flex flex-col sm:flex-row items-center justify-between gap-6 group print:break-inside-avoid">
+                <div className="flex-1 text-center sm:text-left">
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-500/10 rounded-full mb-3">
+                    <Building className="w-4 h-4 text-indigo-700" />
+                    <span className="text-sm font-bold text-indigo-800">Estimativa de Venda</span>
+                  </div>
+                  <p className="text-indigo-900/80 text-sm font-medium leading-relaxed max-w-xl">
+                    Com base na rentabilidade média de mercado (<strong className="text-indigo-900">0.45% a.m.</strong>), o valor estimado para venda deste imóvel seria de aproximadamente:
+                  </p>
+                </div>
+                <div className="text-center sm:text-right shrink-0">
+                  <p className="text-3xl sm:text-4xl font-extrabold text-indigo-900 tracking-tight">{formatCurrency(estimatedSaleValue)}</p>
+                  <p className="text-sm text-indigo-700/80 font-semibold mt-1">{formatCurrency(estimatedSaleM2)} / m²</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 print:break-inside-avoid">
                 <div className="p-4 sm:p-6 bg-white rounded-3xl border border-gray-100 shadow-sm flex flex-col items-center text-center"> 
                   <div className="p-3 bg-amber-50 rounded-2xl mb-3"><Zap className="w-5 h-5 text-amber-500"/></div> 
                   <p className="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Pacote Mensal</p> 
@@ -1059,11 +1083,6 @@ backgroundImage: `url(${(resultadoImg as any).src || resultadoImg})`,
                 <div className="p-4 sm:p-6 bg-white rounded-3xl border border-gray-100 shadow-sm flex flex-col items-center text-center"> 
                   <div className="p-3 bg-blue-50 rounded-2xl mb-3"><BarChart className="w-5 h-5 text-blue-500"/></div> 
                   <p className="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Renda Anual</p> 
-                  <p className="text-base sm:text-xl font-extrabold text-gray-900 tracking-tighter whitespace-nowrap">{formatCurrency(annualIncome)}</p> 
-                </div>
-                <div className="p-4 sm:p-6 bg-white rounded-3xl border border-gray-100 shadow-sm flex flex-col items-center text-center"> 
-                  <div className="p-3 bg-purple-50 rounded-2xl mb-3"><Calendar className="w-5 h-5 text-purple-500"/></div> 
-                  <p className="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Projeção Anual</p> 
                   <p className="text-base sm:text-xl font-extrabold text-gray-900 tracking-tighter whitespace-nowrap">{formatCurrency(annualIncome)}</p> 
                 </div>
               </div>

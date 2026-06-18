@@ -49,31 +49,11 @@ export const useCorretores = (onlyActive = true) => {
       
       if (error) throw error;
       
-      // Get reviews for all corretores
-      const { data: reviews, error: reviewsError } = await supabase
-        .from('reviews')
-        .select('corretor_id, rating')
-        .eq('used', true);
-      
-      if (reviewsError) throw reviewsError;
-      
-      // Calculate average ratings
-      const ratingMap: Record<string, { total: number; count: number }> = {};
-      reviews?.forEach(review => {
-        if (!ratingMap[review.corretor_id]) {
-          ratingMap[review.corretor_id] = { total: 0, count: 0 };
-        }
-        ratingMap[review.corretor_id].total += review.rating;
-        ratingMap[review.corretor_id].count += 1;
-      });
-      
       return (corretores || []).map(corretor => ({
         ...corretor,
         expertise_tags: corretor.expertise_tags || [],
-        averageRating: ratingMap[corretor.id] 
-          ? ratingMap[corretor.id].total / ratingMap[corretor.id].count 
-          : 0,
-        reviewCount: ratingMap[corretor.id]?.count || 0
+        averageRating: 0,
+        reviewCount: 0
       }));
     }
   });

@@ -9,6 +9,8 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import logoPurple from "../../assets/logo-sonho-real-purple.png";
 
+// Rota para solicitar recuperação de senha (/forgot-password)
+
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);

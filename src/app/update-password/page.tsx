@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import logoPurple from "../../assets/logo-sonho-real-purple.png";
 
+// Rota para digitar a nova senha após recuperação (/update-password)
 const UpdatePasswordPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");

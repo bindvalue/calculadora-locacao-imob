@@ -6,13 +6,13 @@ import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { useCorretores, CorretorWithRating } from '@/hooks/useCorretores';
 import { Button } from '@/components/ui/button';
-import { Loader2, LogOut, Plus, Users, Star, Settings, Inbox } from 'lucide-react';
+import { Loader2, LogOut, Plus, Users, Settings, Inbox, UploadCloud } from 'lucide-react';
 import CorretorList from '@/components/admin/CorretorList';
 import CorretorForm from '@/components/admin/CorretorForm';
-import ReviewList from '@/components/admin/ReviewList';
 import SettingsPanel from '@/components/admin/SettingsPanel';
 import { SecoviManager } from '@/components/admin/SecoviManager';
 import LeadsList from '@/components/admin/LeadsList';
+import PdfUpload from '@/components/PdfUpload';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AdminFooter from '@/components/AdminFooter';
 import logoPurple from '@/assets/logo-sonho-real-purple.png';
@@ -108,13 +108,13 @@ const Admin = () => {
               <Users className="w-4 h-4" />
               Corretores
             </TabsTrigger>
-            <TabsTrigger value="avaliacoes" disabled className="hidden gap-2 rounded-xl px-4 py-2 font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-[#6E2FAE] transition-all">
-              <Star className="w-4 h-4" />
-              Avaliações
-            </TabsTrigger>
             <TabsTrigger value="configuracoes" className="gap-2 rounded-xl px-4 py-2 font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-[#6E2FAE] transition-all">
               <Settings className="w-4 h-4" />
               Ajustes
+            </TabsTrigger>
+            <TabsTrigger value="fipezap" className="gap-2 rounded-xl px-4 py-2 font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-[#6E2FAE] transition-all">
+              <UploadCloud className="w-4 h-4" />
+              FipeZAP
             </TabsTrigger>
           </TabsList>
 
@@ -156,17 +156,6 @@ const Admin = () => {
             )}
           </TabsContent>
 
-          <TabsContent value="avaliacoes" className="space-y-6 focus:outline-none">
-            <div>
-              <h2 className="text-2xl font-bold text-[#1D1D1F] tracking-tight">Avaliações</h2>
-              <p className="text-[#86868B] font-medium">
-                Visualize as avaliações dos clientes
-              </p>
-            </div>
-            
-            <ReviewList corretores={corretores || []} />
-          </TabsContent>
-
           <TabsContent value="configuracoes" className="space-y-6 focus:outline-none">
             <div>
               <h2 className="text-2xl font-bold text-[#1D1D1F] tracking-tight">Configurações</h2>
@@ -179,6 +168,17 @@ const Admin = () => {
               <SettingsPanel />
               <SecoviManager />
             </div>
+          </TabsContent>
+
+          <TabsContent value="fipezap" className="space-y-6 focus:outline-none">
+            <div>
+              <h2 className="text-2xl font-bold text-[#1D1D1F] tracking-tight">Importar Base de Dados</h2>
+              <p className="text-[#86868B] font-medium">
+                Mantenha a calculadora atualizada enviando o relatório mais recente do FipeZAP.
+              </p>
+            </div>
+            
+            <PdfUpload />
           </TabsContent>
         </Tabs>
       </main>

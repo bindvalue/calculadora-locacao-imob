@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect, useCallback, createContext, useContext, ReactNode } from 'react';
 
 export interface CookiePreferences {
