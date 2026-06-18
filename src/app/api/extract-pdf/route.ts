@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import pdfParse from "pdf-parse";
+let pdfjsLib: any;
 
 // Rota de API protegida para extração de dados do FipeZAP
 // Permite mais tempo para processar arquivos FipeZAP (que são grandes)
@@ -40,54 +40,64 @@ export async function POST(request: Request) {
 
     console.log("PDF recebido - tamanho:", buffer.length);
 
-    // Timeout para evitar travamento do servidor
-    const timeout = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("Timeout ao processar PDF")), 8000)
-    );
-
-    // Processa o PDF (limitado)
-    const pdfData: any = await Promise.race([
-      pdfParse(buffer, { max: 1 }),
-      timeout
-    ]);
-    
-    if (!pdfData || !pdfData.text) {
-      console.error("PDF sem texto ou falha no parse");
-      return NextResponse.json({ error: "O PDF parece estar vazio ou criptografado." }, { status: 400 });
+    // --- NOVO PARSER COM PDFJS (compatível com Next.js) ---
+    if (!pdfjsLib) {
+      pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
+      // 🔥 CRÍTICO: desabilita worker no ambiente Node (Next.js)
+      pdfjsLib.GlobalWorkerOptions.workerSrc = null;
     }
 
-    const text = pdfData.text;
-    const lines = text.split("\n");
+    const loadingTask = pdfjsLib.getDocument({
+      data: buffer,
+      useWorkerFetch: false,
+      isEvalSupported: false
+    });
+    const pdf = await loadingTask.promise;
+
+    const page = await pdf.getPage(1);
+    const content = await page.getTextContent();
+
+    const items = content.items as any[];
+
+    // Agrupar por posição Y (linhas)
+    const linhasMap: Record<number, any[]> = {};
+
+    items.forEach((item) => {
+      const y = Math.round(item.transform[5]);
+
+      if (!linhasMap[y]) linhasMap[y] = [];
+      linhasMap[y].push(item);
+    });
+
+    // Ordenar linhas e colunas
+    const linhas = Object.values(linhasMap).map((linha: any[]) =>
+      linha.sort((a, b) => a.transform[4] - b.transform[4])
+    );
+
+    // Converter em texto estruturado
+    const structuredLines = linhas.map((linha) =>
+      linha.map((item) => item.str).join(" ").trim()
+    );
 
     const extractedData: Array<{ bairro: string; valor_m2: number; tipo: string }> = [];
 
-    // REGEX FipeZAP Ultra-Flexível
-    // Busca o nome do Bairro no começo da linha, ignora lixo de caracteres,
-    // e pega o primeiro número decimal (ex: 75.4 ou 60,1) que encontrar.
-    const regex = /^([A-Za-zÀ-ÿ\s\-]+?)\s+(?:.*?)\s*(\d{2,3}[.,]\d{1,2})/i;
+    // Regex mais confiável agora que a estrutura está correta
+    const regex = /^(.+?)\s+(\d{2,3}[.,]\d{1,2})$/;
 
-    for (const line of lines) {
-      // Defesa contra travamentos: Pula linhas que não contenham números
-      if (!/\d/.test(line)) continue;
-
-      // Remove linhas em branco para processar mais rápido
-      if (!line.trim()) continue;
+    for (const line of structuredLines) {
+      if (!line || !/\d/.test(line)) continue;
 
       const match = line.match(regex);
+
       if (match) {
-        const bairroRaw = match[1].trim();
-        const valorRaw = match[2];
+        const bairro = match[1].trim();
+        const valor = parseFloat(match[2].replace(",", "."));
 
-        if (bairroRaw.toLowerCase().includes("bairro") || bairroRaw.toLowerCase().includes("cidade") || bairroRaw.toLowerCase().includes("município")) {
-          continue;
-        }
-
-        // Apenas troca vírgula por ponto. Trata corretamente "71.7" e "62,1" sem distorcer o valor real
-        const valorFormatado = parseFloat(valorRaw.replace(",", "."));
+        if (isNaN(valor)) continue;
 
         extractedData.push({
-          bairro: bairroRaw,
-          valor_m2: valorFormatado,
+          bairro,
+          valor_m2: valor,
           tipo: tipoIndice,
         });
       }

@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Loader2, UploadCloud, Plus, Trash2, MapPin } from "lucide-react";
+import { Loader2, UploadCloud, Plus, Trash2, MapPin, ArrowDownAZ, ArrowUpZA, ArrowDown10, ArrowUp10 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,6 +16,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 import { fetchGooglePlaces } from "./google-places";
 
 // Mapa de conversão do Google (que pode retornar o estado por extenso) para Siglas
@@ -44,7 +46,10 @@ export const SecoviManager = () => {
   const [newValue, setNewValue] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
+  const [sortBy, setSortBy] = useState<"bairro" | "valor_default">("bairro");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   useEffect(() => {
     fetchBairros();
   }, []);
@@ -54,8 +59,7 @@ export const SecoviManager = () => {
     try {
 const { data, error } = await (supabase as any)
         .from("secovi_valores")
-        .select("*")
-        .order("bairro", { ascending: true });
+        .select("*"); // A ordenação será feita no frontend
       if (error) throw error;
       setBairros(data || []);
     } catch (err) {
@@ -117,9 +121,15 @@ const { data, error } = await (supabase as any)
     const formData = new FormData();
     formData.append("file", file);
 
+    // Pega a sessão atual para enviar o token de autenticação
+    const { data: { session } } = await supabase.auth.getSession();
+
     try {
       const response = await fetch("/api/upload-secovi", {
         method: "POST",
+        headers: session?.access_token ? {
+          Authorization: `Bearer ${session.access_token}`
+        } : undefined,
         body: formData,
       });
       const result = await response.json();
@@ -129,7 +139,7 @@ const { data, error } = await (supabase as any)
       toast.success(`Planilha processada! ${result.count} bairros atualizados.`);
       fetchBairros(); // Recarrega a tabela na tela
     } catch (error: any) {
-      toast.error(error.message || "Falha ao processar arquivo do Secovi.");
+      toast.error(error.message || "Falha ao processar o arquivo da planilha.");
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -220,9 +230,16 @@ const { data, error } = await (supabase as any)
               <MapPin className="w-6 h-6 text-[#6E2FAE]" />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-[#1D1D1F] tracking-tight">Tabela de Preços (Secovi)</h3>
+              <div className="flex items-center gap-3">
+                <h3 className="text-xl font-bold text-[#1D1D1F] tracking-tight">Tabela de Preços Base</h3>
+                {!isLoading && (
+                  <span className="px-2.5 py-1 text-xs font-bold text-emerald-700 bg-emerald-100 rounded-full">
+                    {bairros.length} bairros cadastrados
+                  </span>
+                )}
+              </div>
               <p className="text-[#86868B] font-medium mt-1">
-                Importe a planilha oficial do Secovi ou adicione manualmente os bairros.
+            Importe a planilha de dados de mercado ou adicione manualmente os bairros.
               </p>
             </div>
           </div>
@@ -287,9 +304,41 @@ const { data, error } = await (supabase as any)
         </div>
 
         {/* Listagem da Tabela */}
-        <div className="border border-[#E5E5EA] rounded-2xl overflow-hidden max-h-[400px] overflow-y-auto relative [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full">
+        <div className="border border-[#E5E5EA] rounded-2xl overflow-hidden max-h-[500px] overflow-y-auto relative [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full">
+          {/* Barra de Filtro e Ordenação */}
+          <div className="p-4 bg-gray-50/50 border-b border-[#E5E5EA] flex flex-col sm:flex-row items-center gap-4 sticky top-0 z-20 backdrop-blur-sm">
+            <div className="w-full sm:flex-1">
+              <Input 
+                placeholder="Pesquisar bairro..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="h-10 rounded-xl bg-white border-[#E5E5EA]"
+              />
+            </div>
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <label className="text-xs font-bold text-[#86868B] uppercase shrink-0 hidden sm:block">Ordenar por:</label>
+              <Select value={sortBy} onValueChange={(value: "bairro" | "valor_default") => setSortBy(value)}>
+                <SelectTrigger className="w-full sm:w-[150px] h-10 rounded-xl bg-white">
+                  <SelectValue placeholder="Ordenar por" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="bairro">Nome</SelectItem>
+                  <SelectItem value="valor_default">Valor m²</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Button variant="outline" size="icon" onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')} className="h-10 w-10 rounded-xl bg-white border-[#E5E5EA] shrink-0 group hover:bg-[#6E2FAE]/5 hover:border-[#6E2FAE]/20 transition-colors" title={`Ordenar por ${sortOrder === 'asc' ? 'Decrescente' : 'Crescente'}`}>
+                {sortBy === 'bairro' ? (
+                  sortOrder === 'asc' ? <ArrowDownAZ className="w-5 h-5 text-gray-500 group-hover:text-[#6E2FAE] transition-colors" /> : <ArrowUpZA className="w-5 h-5 text-gray-500 group-hover:text-[#6E2FAE] transition-colors" />
+                ) : (
+                  sortOrder === 'asc' ? <ArrowDown10 className="w-5 h-5 text-gray-500 group-hover:text-[#6E2FAE] transition-colors" /> : <ArrowUp10 className="w-5 h-5 text-gray-500 group-hover:text-[#6E2FAE] transition-colors" />
+                )}
+              </Button>
+            </div>
+          </div>
+
           <table className="w-full text-left text-sm relative">
-            <thead className="bg-[#F5F5F7] text-[#86868B] font-bold uppercase tracking-wider text-[11px] sticky top-0 z-10 shadow-sm">
+            <thead className="bg-[#F5F5F7] text-[#86868B] font-bold uppercase tracking-wider text-[11px] sticky top-[72px] z-10 shadow-sm">
               <tr>
                 <th className="px-5 py-4">Bairro</th>
                 <th className="px-5 py-4 text-right">Valor m² Base</th>
@@ -302,7 +351,18 @@ const { data, error } = await (supabase as any)
               ) : bairros.length === 0 ? (
                 <tr><td colSpan={3} className="text-center py-8 text-[#86868B]">Nenhum bairro cadastrado.</td></tr>
               ) : (
-                bairros.map((bairro) => (
+                bairros
+                  .filter((bairro) => 
+                    bairro.bairro.toLowerCase().includes(searchTerm.toLowerCase())
+                  )
+                  .sort((a, b) => {
+                    if (sortBy === "bairro") {
+                      return sortOrder === "asc" ? a.bairro.localeCompare(b.bairro) : b.bairro.localeCompare(a.bairro);
+                    } else {
+                      return sortOrder === "asc" ? a.valor_default - b.valor_default : b.valor_default - a.valor_default;
+                    }
+                  })
+                  .map((bairro) => (
                   <tr key={bairro.id} className="hover:bg-gray-50/50 transition-colors">
                     <td className="px-5 py-3 font-bold">{bairro.bairro}</td>
                     <td className="px-5 py-3 text-right text-[#6E2FAE] font-extrabold">R$ {bairro.valor_default.toFixed(2)}</td>
@@ -329,7 +389,7 @@ const { data, error } = await (supabase as any)
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja excluir este bairro da tabela do Secovi? Isso poderá afetar as simulações da calculadora em andamento.
+            Tem certeza que deseja excluir este bairro da base de preços? Isso poderá afetar as simulações da calculadora em andamento.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
