@@ -3,6 +3,7 @@ import { Toaster } from "sonner";
 import { CookieConsentProvider } from "@/hooks/useCookieConsent";
 import { AuthProvider } from "@/hooks/useAuth";
 import { Providers } from "@/components/Providers";
+import { SubscriptionProvider } from "@/hooks/useSubscription";
 
 export const metadata = {
   title: "Calculadora de Locação | Sonho Real",
@@ -15,11 +16,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body suppressHydrationWarning>
         <Providers>
           <AuthProvider>
-            <CookieConsentProvider>
-              {children}
-              {/* Toaster global para os avisos de sucesso/erro */}
-              <Toaster richColors position="top-right" />
-            </CookieConsentProvider>
+            <SubscriptionProvider>
+              <CookieConsentProvider>
+                {children}
+                <Toaster richColors position="top-right" />
+              </CookieConsentProvider>
+            </SubscriptionProvider>
           </AuthProvider>
         </Providers>
       </body>
