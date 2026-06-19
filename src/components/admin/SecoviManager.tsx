@@ -19,8 +19,6 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import * as xlsx from "xlsx";
 
-import { fetchGooglePlaces } from "./google-places";
-
 const ESTIMATED_YIELD_AM = 0.0045;
 const MAX_REASONABLE_RENT_M2 = 300;
 
@@ -91,10 +89,17 @@ const { data, error } = await (supabase as any)
       if (searchQuery.length >= 3 && !selectedPlace) {
         setIsSearching(true);
         try {
-          const predictions = await fetchGooglePlaces(searchQuery);
-          setPlacesOptions(predictions);
+          const response = await fetch(`/api/google-places?input=${encodeURIComponent(searchQuery)}`);
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.error || 'Falha ao buscar locais.');
+          }
+          setPlacesOptions(data.predictions || []);
         } catch (err) {
-          console.error("Erro na busca do Google:", err);
+          const errorMessage = err instanceof Error ? err.message : 'Ocorreu um erro desconhecido.';
+          toast.error("Erro na busca do Google", { description: errorMessage });
+          // Limpa as opções em caso de erro para não mostrar dados antigos
+          setPlacesOptions([]);
         } finally {
           setIsSearching(false);
         }
