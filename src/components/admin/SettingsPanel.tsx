@@ -108,10 +108,21 @@ const SettingsPanel = () => {
             />
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <Label className="text-sm font-semibold text-[#1D1D1F]">
               Usar NET no valuation
             </Label>
+
+            <div className="relative group">
+              <span className="w-5 h-5 flex items-center justify-center rounded-full bg-[#F5F5F7] text-[#5A268F] text-xs font-bold cursor-pointer border border-[#E5E5EA] hover:bg-[#EDE9FE] transition">
+                i
+              </span>
+
+              <div className="absolute left-0 top-full mt-2 w-64 bg-[#1D1D1F] text-white text-xs rounded-xl p-3 shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                Define se o cálculo do valor do imóvel usa o aluguel líquido (mais realista) ou bruto (mais otimista).
+                <div className="absolute -top-1 left-3 w-2 h-2 bg-[#1D1D1F] rotate-45"></div>
+              </div>
+            </div>
 
             <div className="flex items-center gap-3">
               
