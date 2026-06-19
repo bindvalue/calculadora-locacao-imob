@@ -8,16 +8,25 @@ import { Loader2, Save, MessageCircle } from 'lucide-react';
 
 const SettingsPanel = () => {
   const { toast } = useToast();
+
   const { data: whatsappSetting, isLoading } = useSetting('whatsapp_general');
+  const { data: yieldBaseSetting } = useSetting('yield_base');
+  const { data: useNetSetting } = useSetting('use_net_for_valuation');
+  const { data: vacancySetting } = useSetting('vacancy_rate');
+
   const updateSetting = useUpdateSetting();
-  
+
   const [whatsappNumber, setWhatsappNumber] = useState('');
+  const [yieldBase, setYieldBase] = useState('0.0045');
+  const [useNet, setUseNet] = useState('true');
+  const [vacancyRate, setVacancyRate] = useState('0.08');
 
   useEffect(() => {
-    if (whatsappSetting?.value) {
-      setWhatsappNumber(whatsappSetting.value);
-    }
-  }, [whatsappSetting]);
+    if (whatsappSetting?.value) setWhatsappNumber(whatsappSetting.value);
+    if (yieldBaseSetting?.value) setYieldBase(yieldBaseSetting.value);
+    if (useNetSetting?.value) setUseNet(useNetSetting.value);
+    if (vacancySetting?.value) setVacancyRate(vacancySetting.value);
+  }, [whatsappSetting, yieldBaseSetting, useNetSetting, vacancySetting]);
 
   const formatPhoneDisplay = (value: string) => {
     const numbers = value.replace(/\D/g, '');
@@ -33,28 +42,22 @@ const SettingsPanel = () => {
   };
 
   const handleSave = async () => {
-    if (whatsappNumber.length < 10) {
-      toast({
-        title: "Número inválido",
-        description: "Digite um número de WhatsApp válido com DDD.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
-      await updateSetting.mutateAsync({ 
-        key: 'whatsapp_general', 
-        value: whatsappNumber 
-      });
+      await Promise.all([
+        updateSetting.mutateAsync({ key: 'whatsapp_general', value: whatsappNumber }),
+        updateSetting.mutateAsync({ key: 'yield_base', value: yieldBase }),
+        updateSetting.mutateAsync({ key: 'use_net_for_valuation', value: useNet }),
+        updateSetting.mutateAsync({ key: 'vacancy_rate', value: vacancyRate })
+      ]);
+
       toast({
         title: "Configurações salvas",
-        description: "O número do WhatsApp foi atualizado com sucesso.",
+        description: "Parâmetros atualizados com sucesso.",
       });
-    } catch (error) {
+    } catch {
       toast({
         title: "Erro ao salvar",
-        description: "Não foi possível salvar as configurações.",
+        description: "Não foi possível salvar.",
         variant: "destructive",
       });
     }
@@ -70,68 +73,43 @@ const SettingsPanel = () => {
 
   return (
     <div className="space-y-6 w-full">
-      <div className="bg-white rounded-3xl p-5 md:p-6 border border-[#E5E5EA] shadow-sm">
-        <div className="flex items-start gap-4 mb-4 pb-4 border-b border-[#E5E5EA]">
-           <div className="w-12 h-12 bg-green-50 rounded-2xl flex items-center justify-center shrink-0">
-             <MessageCircle className="w-6 h-6 text-green-600" />
-           </div>
-           <div>
-             <h3 className="text-xl font-bold text-[#1D1D1F] tracking-tight">WhatsApp da Administração</h3>
-             <p className="text-[#86868B] font-medium mt-1">
-               Configure o número que receberá as mensagens e os contatos gerados na plataforma.
-             </p>
-           </div>
-        </div>
+      <div className="bg-white rounded-3xl p-6 border shadow-sm">
+
+        <h3 className="text-xl font-bold mb-4">Parâmetros Financeiros</h3>
 
         <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="whatsapp" className="text-sm font-bold text-[#1D1D1F]">Número do WhatsApp</Label>
-            <div className="relative w-full">
-              <Input
-                id="whatsapp"
-                type="tel"
-                placeholder="55 11 99999-9999"
-                value={formatPhoneDisplay(whatsappNumber)}
-                onChange={handleWhatsappChange}
-                className="h-14 bg-white border-[#E5E5EA] rounded-xl focus:border-[#6E2FAE] focus:ring-4 focus:ring-[#6E2FAE]/10 text-base shadow-sm transition-all"
-              />
-            </div>
-            <p className="text-xs text-[#86868B] font-medium">
-              Inclua o código do país (ex: 55) + DDD (ex: 31) + número.
-            </p>
+
+          <div>
+            <Label>WhatsApp</Label>
+            <Input value={formatPhoneDisplay(whatsappNumber)} onChange={handleWhatsappChange}/>
           </div>
-          
-          {whatsappNumber.length >= 10 && (
-            <div className="p-4 bg-[#F5F5F7] rounded-2xl border border-[#E5E5EA]">
-              <p className="text-sm text-[#86868B] font-medium flex flex-wrap items-center gap-2">
-                <strong className="text-[#1D1D1F]">Prévia do link:</strong>
-                <a 
-                  href={`https://wa.me/${whatsappNumber}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[#6E2FAE] hover:text-[#5a268f] hover:underline transition-colors break-all font-semibold"
-                >
-                  wa.me/{whatsappNumber}
-                </a>
-              </p>
-            </div>
-          )}
+
+          <div>
+            <Label>Yield Base (a.m)</Label>
+            <Input value={yieldBase} onChange={(e)=>setYieldBase(e.target.value)}/>
+          </div>
+
+          <div>
+            <Label>Vacância (%)</Label>
+            <Input value={vacancyRate} onChange={(e)=>setVacancyRate(e.target.value)}/>
+          </div>
+
+          <div>
+            <Label>Usar NET no valuation</Label>
+            <select value={useNet} onChange={(e)=>setUseNet(e.target.value)}>
+              <option value="true">Sim</option>
+              <option value="false">Não</option>
+            </select>
+          </div>
+
         </div>
 
-        <div className="mt-5 pt-4 border-t border-[#E5E5EA] flex justify-end">
-          <Button 
-            onClick={handleSave} 
-            disabled={updateSetting.isPending}
-            className="h-12 px-8 rounded-full bg-[#6E2FAE] hover:bg-[#5a268f] text-white font-bold shadow-sm transition-all hover:-translate-y-0.5"
-          >
-            {updateSetting.isPending ? (
-              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-            ) : (
-              <Save className="w-5 h-5 mr-2" />
-            )}
-            Salvar Alterações
+        <div className="mt-6 flex justify-end">
+          <Button onClick={handleSave}>
+            <Save className="w-4 h-4 mr-2"/> Salvar
           </Button>
         </div>
+
       </div>
     </div>
   );

@@ -159,6 +159,17 @@ const Index = () => {
   const [whatsappLink, setWhatsappLink] = useState(`https://wa.me/553135860209`);
   const [step, setStep] = useState(1);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [isChatExpanded, setIsChatExpanded] = useState(false);
+  const [currentMessage, setCurrentMessage] = useState("");
+
+  const chatMessages = [
+    "Quer alugar rápido? Temos clientes buscando agora 👇",
+    "Seu imóvel pode estar abaixo do preço ideal 💰",
+    "Alta demanda na sua região hoje 📍",
+    "Podemos te ajudar a alugar em poucos dias ⚡",
+    "Fale com um especialista e evite prejuízo 📉",
+    "Temos interessados ativos no seu perfil de imóvel 👀"
+  ];
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -272,6 +283,22 @@ const { data, error } = await (supabase as any).from("secovi_valores").select("*
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    setCurrentMessage(chatMessages[Math.floor(Math.random() * chatMessages.length)]);
+
+    const interval = setInterval(() => {
+      setIsChatExpanded((prev) => {
+        if (!prev) {
+          const random = chatMessages[Math.floor(Math.random() * chatMessages.length)];
+          setCurrentMessage(random);
+        }
+        return !prev;
+      });
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const nextStep = async () => {
     let fieldsToValidate: any[] = [];
     if (step === 1) fieldsToValidate = ['cep', 'state', 'city', 'street', 'houseNumber', 'neighborhood'];
@@ -375,15 +402,19 @@ const { data, error } = await (supabase as any).from("secovi_valores").select("*
     const net = Math.max(0, rent - condoCost - iptuCost);
     const totalExp = condoCost + iptuCost;
     
-    const income = net * 12; // Renda anual baseada no líquido
+    const vacancyRate = 0.08;
+    const income = net * 12 * (1 - vacancyRate);
     // Novo indicador baseado em eficiência (não depende do valor do imóvel)
     const yieldValue = rent > 0 ? (net / rent) * 100 : 0; // % do que sobra do bruto
     const nYield = yieldValue;
     const returnYears = 0;
 
     // Estimativa de venda baseada em um Yield médio de mercado de 0.45% a.m.
-    const estSaleM2 = m2Value[0] / ESTIMATED_YIELD_AM;
-    const estSaleValue = rent / ESTIMATED_YIELD_AM;
+    const dynamicYield = ESTIMATED_YIELD_AM;
+    const baseValue = net > 0 ? net : rent;
+
+    const estSaleM2 = m2Value[0] / dynamicYield;
+    const estSaleValue = baseValue / dynamicYield;
 
     return {
       monthlyRent: rent,
@@ -1391,6 +1422,41 @@ backgroundImage: `url(${(resultadoImg as any).src || resultadoImg})`,
       </div>
 
       {/* Botão Flutuante (Voltar ao Topo / Calculadora) */}
+      {/* WhatsApp Floating Chat */}
+      <a
+        href={whatsappLink}
+        target="_blank"
+        rel="noreferrer"
+        className="
+          fixed bottom-24 right-6 md:bottom-28 md:right-10 z-50
+          flex items-center
+          rounded-full
+          bg-[#5A268F]/90 backdrop-blur-md
+          border border-white/10
+          shadow-[0_10px_40px_rgba(91,33,182,0.4)]
+          transition-all duration-500 ease-in-out
+          hover:scale-105
+        "
+      >
+        {/* ÍCONE FIXO (âncora) */}
+        <div className="w-14 h-14 flex-shrink-0 flex items-center justify-center rounded-full text-white">
+          <Phone className="w-5 h-5" />
+        </div>
+
+        {/* TEXTO ANIMADO */}
+        <div
+          className={`
+            overflow-hidden whitespace-nowrap
+            transition-all duration-500 ease-in-out
+            ${isChatExpanded ? "max-w-[400px] opacity-100 px-4" : "max-w-0 opacity-0 px-0"}
+          `}
+        >
+          <span className="text-sm font-semibold text-white">
+            {currentMessage}
+          </span>
+        </div>
+      </a>
+
       {showScrollTop && (
         <button
           onClick={scrollToTop}

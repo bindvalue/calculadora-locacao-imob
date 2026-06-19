@@ -32,6 +32,7 @@ const normalizeBairroRentValues = (bairro: any) => ({
   valor_min: normalizeRentM2Value(Number(bairro.valor_min)),
   valor_max: normalizeRentM2Value(Number(bairro.valor_max)),
   valor_default: normalizeRentM2Value(Number(bairro.valor_default)),
+  yield_default: Number(bairro.yield_default || 0.0045),
 });
 
 // Mapa de conversão do Google (que pode retornar o estado por extenso) para Siglas
@@ -213,6 +214,7 @@ const { data, error } = await (supabase as any)
           valor_min: Number((valor * 0.85).toFixed(2)),
           valor_max: Number((valor * 1.15).toFixed(2)),
           valor_default: Number(valor.toFixed(2)),
+          yield_default: 0.0045,
         }).eq("id", existing.id);
         error = updateError;
         if (!error) toast.success("Bairro atualizado com sucesso!");
@@ -224,6 +226,7 @@ const { data, error } = await (supabase as any)
           valor_min: Number((valor * 0.85).toFixed(2)),
           valor_max: Number((valor * 1.15).toFixed(2)),
           valor_default: Number(valor.toFixed(2)),
+          yield_default: 0.0045,
         }]);
         error = insertError;
         if (!error) toast.success("Bairro adicionado com sucesso!");
@@ -330,6 +333,15 @@ const { data, error } = await (supabase as any)
             />
           </div>
 
+          <div className="w-full sm:w-28 space-y-1 shrink-0">
+            <label className="text-xs font-bold text-[#86868B] uppercase px-1">Yield %</label>
+            <Input 
+              placeholder="0.45%"
+              onChange={(e)=>{}}
+              className="h-12 bg-white border-[#E5E5EA] rounded-xl text-base shadow-sm"
+            />
+          </div>
+
           <Button onClick={handleAddManual} disabled={!selectedPlace || !newValue} className="h-12 px-6 rounded-full bg-[#6E2FAE] hover:bg-[#5a268f] disabled:bg-gray-300 disabled:text-gray-500 text-white font-bold shadow-sm transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2 shrink-0 w-full sm:w-auto">
             <Plus className="w-5 h-5" />
             {selectedPlace && bairros.some(b => b.bairro.toLowerCase() === selectedPlace.bairro.toLowerCase()) ? 'Atualizar' : 'Adicionar'}
@@ -376,6 +388,7 @@ const { data, error } = await (supabase as any)
               <tr>
                 <th className="px-5 py-4">Bairro</th>
                 <th className="px-5 py-4 text-right">Valor m² Base</th>
+                <th className="px-5 py-4 text-right">Yield</th>
                 <th className="px-5 py-4 w-16"></th>
               </tr>
             </thead>
@@ -399,7 +412,57 @@ const { data, error } = await (supabase as any)
                   .map((bairro) => (
                   <tr key={bairro.id} className="hover:bg-gray-50/50 transition-colors">
                     <td className="px-5 py-3 font-bold">{bairro.bairro}</td>
-                    <td className="px-5 py-3 text-right text-[#6E2FAE] font-extrabold">R$ {bairro.valor_default.toFixed(2)}</td>
+                    <td className="px-5 py-3 text-right">
+                      <input
+                        type="text"
+                        defaultValue={bairro.valor_default.toFixed(2)}
+                        className="w-20 text-right bg-transparent border border-transparent focus:border-[#6E2FAE]/30 focus:bg-white rounded-lg px-2 py-1 text-[#6E2FAE] font-bold transition-all outline-none"
+                        onBlur={async (e)=>{
+                          let val = e.target.value.replace(",",".");
+                          const parsed = parseFloat(val);
+                          if (!isNaN(parsed)) {
+                            await (supabase as any)
+                              .from("secovi_valores")
+                              .update({
+                                valor_default: parsed,
+                                valor_min: parsed * 0.85,
+                                valor_max: parsed * 1.15
+                              })
+                              .eq("id", bairro.id);
+                            fetchBairros();
+                          }
+                        }}
+                      />
+                    </td>
+                    <td className="px-5 py-3 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <input
+                          type="text"
+                          defaultValue={(bairro.yield_default * 100).toFixed(2)}
+                          className="w-16 text-right bg-transparent border border-transparent focus:border-[#6E2FAE]/30 focus:bg-white rounded-lg px-2 py-1 text-sm font-semibold transition-all outline-none"
+                          onBlur={async (e)=>{
+                            const val = parseFloat(e.target.value.replace(",","."));
+                            if (!isNaN(val)) {
+                              await (supabase as any)
+                                .from("secovi_valores")
+                                .update({ yield_default: val / 100 })
+                                .eq("id", bairro.id);
+                              fetchBairros();
+                            }
+                          }}
+                        />
+                        <span className={
+                          bairro.yield_default <= 0.004
+                            ? "text-green-600 font-bold text-xs"
+                            : bairro.yield_default <= 0.0055
+                            ? "text-yellow-600 font-bold text-xs"
+                            : "text-red-600 font-bold text-xs"
+                        }>
+                          {bairro.yield_default <= 0.004 ? "Baixo" :
+                           bairro.yield_default <= 0.0055 ? "Médio" : "Alto"}
+                        </span>
+                      </div>
+                    </td>
                     <td className="px-5 py-3 text-right">
                       <button 
                         onClick={() => setDeleteId(bairro.id)}

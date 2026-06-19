@@ -53,6 +53,7 @@ export async function POST(request: Request) {
       const keys = Object.keys(row);
       const bairroKey = keys.find(k => k.toLowerCase().trim() === 'bairro');
       const valorKey = keys.find(k => k.toLowerCase().trim() === 'valor_m2' || k.toLowerCase().trim() === 'valor');
+      const yieldKey = keys.find(k => k.toLowerCase().trim() === 'yield');
       const cidadeKey = keys.find(k => k.toLowerCase().trim() === 'cidade');
       const estadoKey = keys.find(k => k.toLowerCase().trim() === 'estado' || k.toLowerCase().trim() === 'uf');
 
@@ -70,14 +71,24 @@ export async function POST(request: Request) {
         if (!isNaN(valorM2) && valorM2 > 0) {
           valorM2 = normalizeRentM2Value(valorM2);
           const existingId = existingMap.get(bairroNome);
+
+          let yieldDecimal = 0.0045;
+          if (yieldKey && row[yieldKey] !== undefined) {
+            let y = String(row[yieldKey]).replace(",", ".").replace("%", "");
+            const parsed = parseFloat(y);
+            if (!isNaN(parsed)) {
+              yieldDecimal = parsed > 1 ? parsed / 100 : parsed;
+            }
+          }
           
           const registro = {
             bairro: bairroNome,
-            cidade: cidadeKey && row[cidadeKey] ? String(row[cidadeKey]).trim() : "Belo Horizonte", // Fallback seguro
-            estado: estadoKey && row[estadoKey] ? String(row[estadoKey]).trim().toUpperCase() : "MG", // Fallback seguro
+            cidade: cidadeKey && row[cidadeKey] ? String(row[cidadeKey]).trim() : "Belo Horizonte",
+            estado: estadoKey && row[estadoKey] ? String(row[estadoKey]).trim().toUpperCase() : "MG",
             valor_default: Number(valorM2.toFixed(2)),
             valor_min: Number((valorM2 * 0.85).toFixed(2)),
             valor_max: Number((valorM2 * 1.15).toFixed(2)),
+            yield_default: yieldDecimal,
           };
 
           if (existingId) {
