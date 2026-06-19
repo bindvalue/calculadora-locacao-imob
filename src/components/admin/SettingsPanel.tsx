@@ -73,40 +73,111 @@ const SettingsPanel = () => {
 
   return (
     <div className="space-y-6 w-full">
-      <div className="bg-white rounded-3xl p-6 border shadow-sm">
+      <div className="bg-white rounded-[2rem] p-8 border border-[#E5E5EA] shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
 
-        <h3 className="text-xl font-bold mb-4">Parâmetros Financeiros</h3>
+        <h3 className="text-2xl font-semibold text-[#1D1D1F] mb-6 tracking-tight">
+          Parâmetros Financeiros
+        </h3>
 
-        <div className="space-y-4">
+        <div className="space-y-6">
 
-          <div>
-            <Label>WhatsApp</Label>
-            <Input value={formatPhoneDisplay(whatsappNumber)} onChange={handleWhatsappChange}/>
+          <div className="space-y-2">
+            <Label className="text-sm font-semibold text-[#1D1D1F]">WhatsApp</Label>
+            <Input
+              className="h-12 rounded-2xl bg-[#F5F5F7] border border-[#E5E5EA] focus:border-[#5A268F] focus:ring-4 focus:ring-[#5A268F]/10"
+              value={formatPhoneDisplay(whatsappNumber)}
+              onChange={handleWhatsappChange}
+            />
           </div>
 
-          <div>
-            <Label>Yield Base (a.m)</Label>
-            <Input value={yieldBase} onChange={(e)=>setYieldBase(e.target.value)}/>
+          <div className="space-y-2">
+            <Label className="text-sm font-semibold text-[#1D1D1F]">Yield Base (a.m)</Label>
+            <Input
+              className="h-12 rounded-2xl bg-[#F5F5F7] border border-[#E5E5EA] focus:border-[#5A268F] focus:ring-4 focus:ring-[#5A268F]/10"
+              value={yieldBase}
+              onChange={(e)=>setYieldBase(e.target.value)}
+            />
           </div>
 
-          <div>
-            <Label>Vacância (%)</Label>
-            <Input value={vacancyRate} onChange={(e)=>setVacancyRate(e.target.value)}/>
+          <div className="space-y-2">
+            <Label className="text-sm font-semibold text-[#1D1D1F]">Vacância (%)</Label>
+            <Input
+              className="h-12 rounded-2xl bg-[#F5F5F7] border border-[#E5E5EA] focus:border-[#5A268F] focus:ring-4 focus:ring-[#5A268F]/10"
+              value={vacancyRate}
+              onChange={(e)=>setVacancyRate(e.target.value)}
+            />
           </div>
 
-          <div>
-            <Label>Usar NET no valuation</Label>
-            <select value={useNet} onChange={(e)=>setUseNet(e.target.value)}>
-              <option value="true">Sim</option>
-              <option value="false">Não</option>
-            </select>
+          <div className="flex items-center gap-4">
+            <Label className="text-sm font-semibold text-[#1D1D1F]">
+              Usar NET no valuation
+            </Label>
+
+            <div className="flex items-center gap-3">
+              
+              <button
+                type="button"
+                onClick={() => setUseNet("true")}
+                className="flex items-center gap-1.5 text-sm font-medium"
+              >
+                <span
+                  className={`
+                    w-4 h-4 rounded-full border flex items-center justify-center
+                    ${useNet === "true"
+                      ? "border-[#5A268F]"
+                      : "border-[#D1D1D6]"}
+                  `}
+                >
+                  {useNet === "true" && (
+                    <span className="w-2 h-2 rounded-full bg-[#5A268F]" />
+                  )}
+                </span>
+                <span className={useNet === "true" ? "text-[#5A268F]" : "text-gray-500"}>
+                  Sim
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setUseNet("false")}
+                className="flex items-center gap-1.5 text-sm font-medium"
+              >
+                <span
+                  className={`
+                    w-4 h-4 rounded-full border flex items-center justify-center
+                    ${useNet === "false"
+                      ? "border-[#5A268F]"
+                      : "border-[#D1D1D6]"}
+                  `}
+                >
+                  {useNet === "false" && (
+                    <span className="w-2 h-2 rounded-full bg-[#5A268F]" />
+                  )}
+                </span>
+                <span className={useNet === "false" ? "text-[#5A268F]" : "text-gray-500"}>
+                  Não
+                </span>
+              </button>
+
+            </div>
           </div>
 
         </div>
 
-        <div className="mt-6 flex justify-end">
-          <Button onClick={handleSave}>
-            <Save className="w-4 h-4 mr-2"/> Salvar
+        <div className="mt-8 flex justify-end">
+          <Button
+            onClick={handleSave}
+            className="
+              h-12 px-6 rounded-full
+              bg-[#5A268F]
+              hover:bg-[#4a1f75]
+              text-white font-semibold
+              transition-all duration-300
+              shadow-sm hover:shadow-md
+              hover:-translate-y-0.5
+            "
+          >
+            <Save className="w-4 h-4 mr-2"/> Salvar alterações
           </Button>
         </div>
 
