@@ -1,5 +1,5 @@
 import "./globals.css";
-import { Providers } from "@/app/Providers";
+import { Providers } from "@/app/providers";
 
 export const metadata = {
   title: "Calculadora de Locação | Sonho Real",

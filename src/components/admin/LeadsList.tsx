@@ -358,7 +358,7 @@ const { data, error } = await (supabase as any)
               <Button 
                 onClick={() => setVisibleCount(prev => prev + 10)}
                 variant="outline"
-                className="h-12 px-8 rounded-full border-[#E5E5EA] bg-white hover:bg-gray-50 text-[#1D1D1F] font-bold shadow-sm transition-all hover:scale-105"
+                className="h-12 px-8 rounded-full border-[#E5E5EA] bg-white text-[#1D1D1F] hover:bg-secondary/10 hover:text-secondary font-bold shadow-sm transition-all hover:scale-105"
               >
                 Carregar mais leads
               </Button>
