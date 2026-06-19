@@ -68,6 +68,31 @@ const DEFAULT_NEIGHBORHOOD_RATES: Record<string, { min: number, max: number, def
   "padrao": { min: 12, max: 35, default: 20 } // Fallback genérico para bairros não mapeados
 };
 
+const ESTIMATED_YIELD_AM = 0.0045;
+const MAX_REASONABLE_RENT_M2 = 300;
+
+const normalizeRentM2Value = (value: number) => {
+  if (!Number.isFinite(value) || value <= 0) return 0;
+  return value > MAX_REASONABLE_RENT_M2 ? Number((value * ESTIMATED_YIELD_AM).toFixed(2)) : value;
+};
+
+const normalizeRentM2Range = (rate: { min: number, max: number, default: number }) => {
+  const normalized = {
+    min: normalizeRentM2Value(Number(rate.min)),
+    max: normalizeRentM2Value(Number(rate.max)),
+    default: normalizeRentM2Value(Number(rate.default)),
+  };
+
+  const orderedMin = Math.min(normalized.min, normalized.max, normalized.default);
+  const orderedMax = Math.max(normalized.min, normalized.max, normalized.default);
+
+  return {
+    min: Number(orderedMin.toFixed(2)),
+    max: Number(orderedMax.toFixed(2)),
+    default: Number(normalized.default.toFixed(2)),
+  };
+};
+
 const formSchema = z.object({
   name: z.string().min(2, { message: "Nome deve ter pelo menos 2 caracteres." }),
   email: z.string().email({ message: "Por favor, insira um e-mail válido." }),
@@ -200,11 +225,11 @@ const { data, error } = await (supabase as any).from("secovi_valores").select("*
           data.forEach((item) => {
             // Normalizamos para minúsculo sem acento para facilitar a busca do cliente
             const key = item.bairro.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
-            dynamicRates[key] = {
+            dynamicRates[key] = normalizeRentM2Range({
               min: Number(item.valor_min),
               max: Number(item.valor_max),
               default: Number(item.valor_default),
-            };
+            });
           });
           setNeighborhoodRates(dynamicRates);
         }
@@ -357,7 +382,6 @@ const { data, error } = await (supabase as any).from("secovi_valores").select("*
     const returnYears = 0;
 
     // Estimativa de venda baseada em um Yield médio de mercado de 0.45% a.m.
-    const ESTIMATED_YIELD_AM = 0.0045;
     const estSaleM2 = m2Value[0] / ESTIMATED_YIELD_AM;
     const estSaleValue = rent / ESTIMATED_YIELD_AM;
 
@@ -399,7 +423,7 @@ const { error } = await (supabase as any).from("leads_calculadora").insert([
           complemento: data.complement || null,
           tipo_imovel: finalPropertyType,
           area_m2: data.area,
-          valor_venda: data.saleValue || estimatedSaleValue,
+          valor_venda: estimatedSaleValue,
           quartos: data.bedrooms,
           suites: data.suites,
           banheiros: data.bathrooms,

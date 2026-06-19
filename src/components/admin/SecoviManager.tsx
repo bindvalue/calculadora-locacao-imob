@@ -21,6 +21,21 @@ import * as xlsx from "xlsx";
 
 import { fetchGooglePlaces } from "./google-places";
 
+const ESTIMATED_YIELD_AM = 0.0045;
+const MAX_REASONABLE_RENT_M2 = 300;
+
+const normalizeRentM2Value = (value: number) => {
+  if (!Number.isFinite(value) || value <= 0) return 0;
+  return value > MAX_REASONABLE_RENT_M2 ? Number((value * ESTIMATED_YIELD_AM).toFixed(2)) : value;
+};
+
+const normalizeBairroRentValues = (bairro: any) => ({
+  ...bairro,
+  valor_min: normalizeRentM2Value(Number(bairro.valor_min)),
+  valor_max: normalizeRentM2Value(Number(bairro.valor_max)),
+  valor_default: normalizeRentM2Value(Number(bairro.valor_default)),
+});
+
 // Mapa de conversão do Google (que pode retornar o estado por extenso) para Siglas
 const stateMap: Record<string, string> = {
   "Acre": "AC", "Alagoas": "AL", "Amapá": "AP", "Amazonas": "AM", "Bahia": "BA",
@@ -62,7 +77,7 @@ const { data, error } = await (supabase as any)
         .from("secovi_valores")
         .select("*"); // A ordenação será feita no frontend
       if (error) throw error;
-      setBairros(data || []);
+      setBairros((data || []).map(normalizeBairroRentValues));
     } catch (err) {
       toast.error("Erro ao carregar a tabela de preços.");
     } finally {
@@ -168,12 +183,14 @@ const { data, error } = await (supabase as any)
     if (formattedValue.includes(",")) {
       formattedValue = formattedValue.replace(/\./g, "").replace(",", ".");
     }
-    const valor = parseFloat(formattedValue);
+    const parsedValue = parseFloat(formattedValue);
 
-    if (isNaN(valor)) {
+    if (isNaN(parsedValue)) {
       toast.error("O valor deve ser um número válido.");
       return;
     }
+
+    const valor = normalizeRentM2Value(parsedValue);
 
     try {
       // Verifica se o bairro já existe (Upsert lógico)
@@ -315,7 +332,8 @@ const { data, error } = await (supabase as any)
         </div>
 
         {/* Listagem da Tabela */}
-        <div className="border border-[#E5E5EA] rounded-2xl overflow-hidden max-h-[500px] overflow-y-auto relative [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full">
+        <div className="border border-[#E5E5EA] rounded-2xl overflow-hidden relative">
+          <div className="max-h-[500px] overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:my-2 [&::-webkit-scrollbar-track]:rounded-r-2xl [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#B475F3]/70 hover:[&::-webkit-scrollbar-thumb]:bg-[#6E2FAE]/75">
           {/* Barra de Filtro e Ordenação */}
           <div className="p-4 bg-gray-50/50 border-b border-[#E5E5EA] flex flex-col sm:flex-row items-center gap-4 sticky top-0 z-20 backdrop-blur-sm">
             <div className="w-full sm:flex-1">
@@ -391,6 +409,7 @@ const { data, error } = await (supabase as any)
               )}
             </tbody>
           </table>
+          </div>
         </div>
       </div>
 

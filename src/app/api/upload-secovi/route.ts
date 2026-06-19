@@ -3,6 +3,14 @@ import { createClient } from "@supabase/supabase-js";
 
 export const runtime = 'edge';
 
+const ESTIMATED_YIELD_AM = 0.0045;
+const MAX_REASONABLE_RENT_M2 = 300;
+
+const normalizeRentM2Value = (value: number) => {
+  if (!Number.isFinite(value) || value <= 0) return 0;
+  return value > MAX_REASONABLE_RENT_M2 ? Number((value * ESTIMATED_YIELD_AM).toFixed(2)) : value;
+};
+
 export async function POST(request: Request) {
   try {
     // O frontend agora envia JSON, não mais um arquivo FormData
@@ -60,6 +68,7 @@ export async function POST(request: Request) {
         }
 
         if (!isNaN(valorM2) && valorM2 > 0) {
+          valorM2 = normalizeRentM2Value(valorM2);
           const existingId = existingMap.get(bairroNome);
           
           const registro = {

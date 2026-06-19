@@ -1,9 +1,5 @@
-import "../index.css"; // Se o seu arquivo se chamar globals.css, troque o nome aqui
-import { Toaster } from "sonner";
-import { CookieConsentProvider } from "@/hooks/useCookieConsent";
-import { AuthProvider } from "@/hooks/useAuth";
-import { Providers } from "@/components/Providers";
-import { SubscriptionProvider } from "@/hooks/useSubscription";
+import "./globals.css";
+import { Providers } from "@/app/Providers";
 
 export const metadata = {
   title: "Calculadora de Locação | Sonho Real",
@@ -13,16 +9,9 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
-      <body suppressHydrationWarning>
+      <body>
         <Providers>
-          <AuthProvider>
-            <SubscriptionProvider>
-              <CookieConsentProvider>
-                {children}
-                <Toaster richColors position="top-right" />
-              </CookieConsentProvider>
-            </SubscriptionProvider>
-          </AuthProvider>
+          {children}
         </Providers>
       </body>
     </html>
