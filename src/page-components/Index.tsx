@@ -1041,7 +1041,7 @@ backgroundImage: `url(${(resultadoImg as any).src || resultadoImg})`,
           </h1>
 
           <p className="text-[clamp(1rem,1.5vw,1.25rem)] text-gray-300 font-medium leading-relaxed max-w-lg">
-            Descubra o valor ideal para locação em poucos passos. Nossa calculadora utiliza inteligência de mercado para sugerir o preço mais competitivo para o seu perfil.
+            Descubra o valor ideal para locação e venda em poucos passos. Nossa calculadora utiliza inteligência de mercado para sugerir o preço mais competitivo para o seu perfil.
           </p>
 
           <div className="flex flex-col gap-4 xl:gap-6 pt-4 xl:pt-6">
