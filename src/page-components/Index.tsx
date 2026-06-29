@@ -542,7 +542,7 @@ const { error } = await (supabase as any).from("leads_calculadora").insert([
                 Calcule o <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#B475F3] to-[#6E2FAE]">aluguel ideal</span>
               </h1>
               <p className="text-gray-500 font-medium text-sm leading-relaxed">
-                Descubra o valor ideal para locação do seu imóvel baseado em dados reais de mercado.
+                Descubra o valor ideal para locação e venda do seu imóvel baseado em dados reais de mercado.
               </p>
             </div>
           )}
@@ -1037,7 +1037,7 @@ backgroundImage: `url(${(resultadoImg as any).src || resultadoImg})`,
         <div className="relative z-10 max-w-2xl text-left space-y-6 xl:space-y-10 w-full pl-4 xl:pl-8 animate-in fade-in slide-in-from-bottom-12 duration-1000 mt-16 xl:mt-0">
           <h1 className="text-[clamp(2.5rem,4vw,4rem)] font-extrabold leading-[1.05] tracking-tight text-white">
             Quanto vale o <br/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#B475F3] to-[#6E2FAE]">aluguel do seu imóvel?</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#B475F3] to-[#6E2FAE]">o seu imóvel?</span>
           </h1>
 
           <p className="text-[clamp(1rem,1.5vw,1.25rem)] text-gray-300 font-medium leading-relaxed max-w-lg">
