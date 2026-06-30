@@ -499,10 +499,10 @@ const { error } = await (supabase as any).from("leads_calculadora").insert([
   return (
     <main className="w-full font-sans antialiased selection:bg-[#6E2FAE] selection:text-white">
       <Head>
-        <title>Calculadora Imobiliária | Sonho Real Netimóveis</title>
-        <meta name="description" content="Calcule o valor de aluguel ideal para seu imóvel com a calculadora da Sonho Real Netimóveis. Análise de mercado precisa para maximizar sua rentabilidade." />
-        <meta property="og:title" content="Calculadora Imobiliária | Sonho Real Netimóveis" />
-        <meta property="og:description" content="Descubra o potencial de locação do seu imóvel. Simulação de aluguel baseada em dados reais de mercado." />
+        <title>Calculadora de Aluguel e Venda | Sonho Real Netimóveis</title>
+        <meta name="description" content="Calcule o valor de aluguel e a estimativa de venda para seu imóvel com a Calculadora Imobiliária da Sonho Real Netimóveis. Análise de mercado precisa para maximizar sua rentabilidade." />
+        <meta property="og:title" content="Calculadora de Aluguel e Venda | Sonho Real Netimóveis" />
+        <meta property="og:description" content="Descubra o potencial de locação e o valor de venda do seu imóvel. Simulação baseada em dados reais de mercado." />
         <meta property="og:image" content="/og-image.png" /> {/* Certifique-se que a imagem og-image.png exista na pasta public */}
         <meta property="og:url" content="https://www.sonhorealnetimoveis.com.br/" /> {/* Substitua pela URL real */}
       </Head>
