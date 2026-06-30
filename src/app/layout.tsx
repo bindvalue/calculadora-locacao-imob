@@ -2,7 +2,7 @@ import "./globals.css";
 import { Providers } from "@/app/providers";
 
 export const metadata = {
-  title: "Calculadora de Locação | Sonho Real",
+  title: "Calculadora Imobiliária | Sonho Real",
   description: "Descubra o valor ideal do seu aluguel",
 };
 
