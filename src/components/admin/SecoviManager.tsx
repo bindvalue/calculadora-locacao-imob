@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Loader2, UploadCloud, Plus, Trash2, MapPin, ArrowDownAZ, ArrowUpZA, ArrowDown10, ArrowUp10 } from "lucide-react";
+import { Loader2, UploadCloud, Plus, Trash2, MapPin, ArrowDownAZ, ArrowUpZA, ArrowDown10, ArrowUp10, Pencil } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -410,47 +410,53 @@ const { data, error } = await (supabase as any)
                     }
                   })
                   .map((bairro) => (
-                  <tr key={bairro.id} className="hover:bg-gray-50/50 transition-colors">
+                  <tr key={bairro.id} className="group hover:bg-gray-50/50 transition-colors">
                     <td className="px-5 py-3 font-bold">{bairro.bairro}</td>
                     <td className="px-5 py-3 text-right">
-                      <input
-                        type="text"
-                        defaultValue={bairro.valor_default.toFixed(2)}
-                        className="w-20 text-right bg-transparent border border-transparent focus:border-[#6E2FAE]/30 focus:bg-white rounded-lg px-2 py-1 text-[#6E2FAE] font-bold transition-all outline-none"
-                        onBlur={async (e)=>{
-                          let val = e.target.value.replace(",",".");
-                          const parsed = parseFloat(val);
-                          if (!isNaN(parsed)) {
-                            await (supabase as any)
-                              .from("secovi_valores")
-                              .update({
-                                valor_default: parsed,
-                                valor_min: parsed * 0.85,
-                                valor_max: parsed * 1.15
-                              })
-                              .eq("id", bairro.id);
-                            fetchBairros();
-                          }
-                        }}
-                      />
-                    </td>
-                    <td className="px-5 py-3 text-right">
-                      <div className="flex items-center justify-end gap-2">
+                      <div className="inline-flex items-center justify-end gap-1">
                         <input
                           type="text"
-                          defaultValue={(bairro.yield_default * 100).toFixed(2)}
-                          className="w-16 text-right bg-transparent border border-transparent focus:border-[#6E2FAE]/30 focus:bg-white rounded-lg px-2 py-1 text-sm font-semibold transition-all outline-none"
+                          defaultValue={bairro.valor_default.toFixed(2)}
+                          className="w-20 cursor-text text-right bg-transparent border border-transparent focus:border-[#6E2FAE]/30 focus:bg-white rounded-lg px-2 py-1 text-[#6E2FAE] font-bold transition-all outline-none"
                           onBlur={async (e)=>{
-                            const val = parseFloat(e.target.value.replace(",","."));
-                            if (!isNaN(val)) {
+                            let val = e.target.value.replace(",",".");
+                            const parsed = parseFloat(val);
+                            if (!isNaN(parsed)) {
                               await (supabase as any)
                                 .from("secovi_valores")
-                                .update({ yield_default: val / 100 })
+                                .update({
+                                  valor_default: parsed,
+                                  valor_min: parsed * 0.85,
+                                  valor_max: parsed * 1.15
+                                })
                                 .eq("id", bairro.id);
                               fetchBairros();
                             }
                           }}
                         />
+                        <Pencil className="w-3 h-3 text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                    </td>
+                    <td className="px-5 py-3 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <div className="inline-flex items-center justify-end gap-1">
+                          <input
+                            type="text"
+                            defaultValue={(bairro.yield_default * 100).toFixed(2)}
+                            className="w-16 cursor-text text-right bg-transparent border border-transparent focus:border-[#6E2FAE]/30 focus:bg-white rounded-lg px-2 py-1 text-sm font-semibold transition-all outline-none"
+                            onBlur={async (e)=>{
+                              const val = parseFloat(e.target.value.replace(",","."));
+                              if (!isNaN(val)) {
+                                await (supabase as any)
+                                  .from("secovi_valores")
+                                  .update({ yield_default: val / 100 })
+                                  .eq("id", bairro.id);
+                                fetchBairros();
+                              }
+                            }}
+                          />
+                          <Pencil className="w-3 h-3 text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
                         <span className={
                           bairro.yield_default <= 0.004
                             ? "text-green-600 font-bold text-xs"

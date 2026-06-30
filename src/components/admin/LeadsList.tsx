@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,7 +36,8 @@ import {
   TrendingUp,
   Download,
   Trash2,
-  FileText
+  FileText,
+  BarChartHorizontal
 } from "lucide-react";
 import { toast } from "sonner";
 import logoPurple from "@/assets/logo-sonho-real-purple.png";
@@ -120,10 +121,52 @@ const getNeighborhoodRates = (bairro: string) => {
   return rate;
 };
 
+const StatCard = ({ icon, label, value, variant }: { icon: React.ReactNode, label: string, value: number | string, variant: 'new' | 'viewed' | 'total' }) => {
+  const baseClasses = "group bg-white p-5 rounded-2xl border border-[#E5E5EA] shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 cursor-default";
+  
+  const variantStyles = {
+    new: {
+      container: "hover:border-violet-300",
+      iconContainer: "bg-violet-100 group-hover:bg-violet-200",
+      icon: "text-violet-600",
+      label: "text-violet-700 group-hover:text-violet-800",
+    },
+    viewed: {
+      container: "hover:border-gray-300",
+      iconContainer: "bg-gray-100 group-hover:bg-gray-200",
+      icon: "text-gray-600",
+      label: "text-gray-700 group-hover:text-gray-800",
+    },
+    total: {
+      container: "hover:border-gray-300",
+      iconContainer: "bg-gray-100 group-hover:bg-gray-200",
+      icon: "text-gray-600",
+      label: "text-gray-700 group-hover:text-gray-800",
+    }
+  };
+
+  const styles = variantStyles[variant];
+
+  return (
+    <div className={`${baseClasses} ${styles.container}`}>
+      <div className="flex items-center gap-4">
+        <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 transition-colors ${styles.iconContainer}`}>
+          {React.cloneElement(icon as React.ReactElement, { className: `w-6 h-6 ${styles.icon}` })}
+        </div>
+        <div>
+          <p className="text-3xl font-bold text-[#1D1D1F] tracking-tight">{value}</p>
+          <p className={`text-sm font-semibold transition-colors ${styles.label}`}>{label}</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const LeadsList = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [viewStatusFilter, setViewStatusFilter] = useState<'all' | 'new' | 'viewed'>('all');
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [visibleCount, setVisibleCount] = useState(10);
@@ -142,7 +185,21 @@ const LeadsList = () => {
   // Resetar a paginação ao fazer uma nova busca
   useEffect(() => {
     setVisibleCount(10);
-  }, [searchTerm]);
+  }, [searchTerm, viewStatusFilter]);
+
+  const { newLeadsCount, viewedLeadsCount } = useMemo(() => {
+    return leads.reduce(
+      (acc, lead) => {
+        if (lead.visualizado) {
+          acc.viewedLeadsCount++;
+        } else {
+          acc.newLeadsCount++;
+        }
+        return acc;
+      },
+      { newLeadsCount: 0, viewedLeadsCount: 0 }
+    );
+  }, [leads]);
 
   const fetchLeads = async () => {
     setIsLoading(true);
@@ -162,15 +219,28 @@ const { data, error } = await (supabase as any)
     }
   };
 
-  const filteredLeads = leads.filter((lead) => {
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      lead.nome.toLowerCase().includes(searchLower) ||
-      lead.email.toLowerCase().includes(searchLower) ||
-      lead.bairro.toLowerCase().includes(searchLower) ||
-      lead.whatsapp.includes(searchLower)
-    );
-  });
+  const filteredLeads = useMemo(() => {
+    return leads
+      .filter((lead) => {
+        if (viewStatusFilter === 'new') {
+          return !lead.visualizado;
+        }
+        if (viewStatusFilter === 'viewed') {
+          return lead.visualizado;
+        }
+        return true;
+      })
+      .filter((lead) => {
+        const searchLower = searchTerm.toLowerCase();
+        if (!searchLower) return true;
+        return (
+          lead.nome.toLowerCase().includes(searchLower) ||
+          lead.email.toLowerCase().includes(searchLower) ||
+          lead.bairro.toLowerCase().includes(searchLower) ||
+          lead.whatsapp.includes(searchLower)
+        );
+      });
+  }, [leads, searchTerm, viewStatusFilter]);
 
   // Recriando a lógica de inteligência baseada no Lead Selecionado
   const m2Range = selectedLead ? getNeighborhoodRates(selectedLead.bairro) : NEIGHBORHOOD_M2_RATES["padrao"];
@@ -256,6 +326,47 @@ const { data, error } = await (supabase as any)
           Exportar Lista
         </Button>
       </div>
+
+      {/* View Status Filter */}
+      <div className="flex items-center gap-2 border-b border-[#E5E5EA] pb-6">
+        <Button
+          variant="ghost"
+          onClick={() => setViewStatusFilter('all')}
+          className={`font-semibold rounded-full px-4 py-2 h-auto transition-colors ${viewStatusFilter === 'all' ? 'text-[#6E2FAE] bg-[#6E2FAE]/10' : 'text-gray-500 hover:bg-[#6E2FAE]/5 hover:text-[#6E2FAE]'}`}
+        >
+          Todos <Badge variant="secondary" className="ml-2">{leads.length}</Badge>
+        </Button>
+        <Button variant="ghost" onClick={() => setViewStatusFilter('new')} className={`font-semibold rounded-full px-4 py-2 h-auto transition-colors ${viewStatusFilter === 'new' ? 'text-violet-700 bg-violet-100' : 'text-gray-500 hover:bg-violet-50 hover:text-violet-700'}`}>
+          Novos <Badge className="ml-2 bg-violet-600 hover:bg-violet-700 text-white">{newLeadsCount}</Badge>
+        </Button>
+        <Button variant="ghost" onClick={() => setViewStatusFilter('viewed')} className={`font-semibold rounded-full px-4 py-2 h-auto transition-colors ${viewStatusFilter === 'viewed' ? 'text-gray-600 bg-gray-200' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-600'}`}>
+          Visualizados <Badge variant="secondary" className="ml-2">{viewedLeadsCount}</Badge>
+        </Button>
+      </div>
+
+      {/* Stats Cards */}
+      {!isLoading && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 print:hidden">
+          <StatCard 
+            variant="new"
+            icon={<Mail />}
+            label="Leads Novos"
+            value={newLeadsCount}
+          />
+          <StatCard 
+            variant="viewed"
+            icon={<Eye />}
+            label="Leads Visualizados"
+            value={viewedLeadsCount}
+          />
+          <StatCard 
+            variant="total"
+            icon={<BarChartHorizontal />}
+            label="Total de Leads"
+            value={leads.length}
+          />
+        </div>
+      )}
 
       {/* Results Count */}
       {!isLoading && (
